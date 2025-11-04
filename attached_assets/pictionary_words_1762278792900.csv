@@ -1,0 +1,301 @@
+id,cue_words,difficulty_lvl,category_name
+PI_001,Parrot,Easy,Animals
+PI_002,Rabbit,Easy,Animals
+PI_003,Turtle,Easy,Animals
+PI_004,Horse,Easy,Animals
+PI_005,Shark,Medium,Animals
+PI_006,Crab,Medium,Animals
+PI_007,Camel,Medium,Animals
+PI_008,Spider,Medium,Animals
+PI_009,Norwhal,Hard,Animals
+PI_010,Tiger,Medium,Animals
+PI_011,Duck,Medium,Animals
+PI_012,Hawk,Medium,Animals
+PI_013,Kangaroo,Medium,Animals
+PI_014,Zebra,Medium,Animals
+PI_015,Lobster,Medium,Animals
+PI_016,Whale,Medium,Animals
+PI_017,Cow,Medium,Animals
+PI_018,Crow,Medium,Animals
+PI_019,Crocodile,Medium,Animals
+PI_020,Bee,Medium,Animals
+PI_021,Wolf,Medium,Animals
+PI_022,Lion,Medium,Animals
+PI_023,Butterfly,Medium,Animals
+PI_024,Cat,Medium,Animals
+PI_025,Fox,Medium,Animals
+PI_026,Squirrel,Medium,Animals
+PI_027,Snake,Medium,Animals
+PI_028,Dog,Medium,Animals
+PI_029,Octopus,Medium,Animals
+PI_030,Ant,Medium,Animals
+PI_031,Seal,Hard,Animals
+PI_032,Chicken,Hard,Animals
+PI_033,Goat,Hard,Animals
+PI_034,Frog,Hard,Animals
+PI_035,Elephant,Hard,Animals
+PI_036,Eagle,Hard,Animals
+PI_037,Penguin,Hard,Animals
+PI_038,Giraffe,Hard,Animals
+PI_039,Dolphin,Hard,Animals
+PI_040,Peacock,Hard,Animals
+PI_041,Burger,Easy,Food/Drink
+PI_042,Curry,Easy,Food/Drink
+PI_043,Soup,Medium,Food/Drink
+PI_044,Pizza,Medium,Food/Drink
+PI_045,Sushi,Medium,Food/Drink
+PI_046,Bread,Medium,Food/Drink
+PI_047,Coffee,Medium,Food/Drink
+PI_048,Pasta,Medium,Food/Drink
+PI_049,Juice,Medium,Food/Drink
+PI_050,Cake,Medium,Food/Drink
+PI_051,Salad,Medium,Food/Drink
+PI_052,Sandwich,Medium,Food/Drink
+PI_053,Ice Cream,Hard,Food/Drink
+PI_054,Chocolate,Hard,Food/Drink
+PI_055,Tea,Hard,Food/Drink
+PI_056,Mountain,Easy,Nature
+PI_057,River,Easy,Nature
+PI_058,Sunset,Medium,Nature
+PI_059,Hurricane,Medium,Nature
+PI_060,Flower,Medium,Nature
+PI_061,Rain,Medium,Nature
+PI_062,Tree,Medium,Nature
+PI_063,Valley,Medium,Nature
+PI_064,Tornado,Medium,Nature
+PI_065,Ocean,Medium,Nature
+PI_066,Storm,Medium,Nature
+PI_067,Cloud,Medium,Nature
+PI_068,Volcano,Hard,Nature
+PI_069,Cave,Hard,Nature
+PI_070,Rainbow,Hard,Nature
+PI_071,Football,Easy,Sports
+PI_072,Badminton,Easy,Sports
+PI_073,Golf,Medium,Sports
+PI_074,Skating,Medium,Sports
+PI_075,Cricket,Medium,Sports
+PI_076,Hockey,Medium,Sports
+PI_077,Cycling,Medium,Sports
+PI_078,Racing,Medium,Sports
+PI_079,Baseball,Medium,Sports
+PI_080,Archery,Medium,Sports
+PI_081,Javelin Throw,Hard,Sports
+PI_082,Boxing,Medium,Sports
+PI_083,Tennis,Hard,Sports
+PI_084,Surfing,Hard,Sports
+PI_085,Basketball,Hard,Sports
+PI_086,Brush,Easy,Things you hold in your hand
+PI_087,Umbrella,Easy,Things you hold in your hand
+PI_088,Mouth organ,Medium,Things you hold in your hand
+PI_089,Scissors,Medium,Things you hold in your hand
+PI_090,Racket,Medium,Things you hold in your hand
+PI_091,Pen,Medium,Things you hold in your hand
+PI_092,Phone,Medium,Things you hold in your hand
+PI_093,Microphone,Medium,Things you hold in your hand
+PI_094,Hammer,Medium,Things you hold in your hand
+PI_095,Ball,Medium,Things you hold in your hand
+PI_096,Knife,Medium,Things you hold in your hand
+PI_097,Bat,Medium,Things you hold in your hand
+PI_098,Guitar,Hard,Things you hold in your hand
+PI_099,Camera,Hard,Things you hold in your hand
+PI_100,Cup,Hard,Things you hold in your hand
+PI_101,Jumping,Easy,Action words
+PI_102,Dancing,Easy,Action words
+PI_103,Swimming,Medium,Action words
+PI_104,Cooking,Medium,Action words
+PI_105,Playing,Medium,Action words
+PI_106,Climbing,Medium,Action words
+PI_107,Reading,Medium,Action words
+PI_108,Writing,Medium,Action words
+PI_109,Painting,Medium,Action words
+PI_110,Running,Medium,Action words
+PI_111,Sleeping,Medium,Action words
+PI_112,Skiing,Medium,Action words
+PI_113,Shooting,Medium,Action words
+PI_114,Singing,Medium,Action words
+PI_115,Rowing,Hard,Action words
+PI_116,Flying,Hard,Action words
+PI_117,Laughing,Hard,Action words
+PI_118,Typing,Hard,Action words
+PI_119,Crying,Hard,Action words
+PI_120,Driving,Hard,Action words
+PI_121,Galileo,Easy,Famous Personality - Global
+PI_122,Michael Jackson,Easy,Famous Personality - Global
+PI_123,Da Vinci,Medium,Famous Personality - Global
+PI_124,Messi,Medium,Famous Personality - Global
+PI_125,Newton,Medium,Famous Personality - Global
+PI_126,Tesla,Medium,Famous Personality - Global
+PI_127,Marilyn Monroe,Medium,Famous Personality - Global
+PI_128,Churchill,Medium,Famous Personality - Global
+PI_129,Einstein,Medium,Famous Personality - Global
+PI_130,Cleopatra,Medium,Famous Personality - Global
+PI_131,Oprah,Medium,Famous Personality - Global
+PI_132,Gandhi,Medium,Famous Personality - Global
+PI_133,Shakespeare,Medium,Famous Personality - Global
+PI_134,Obama,Medium,Famous Personality - Global
+PI_135,Elon Musk,Hard,Famous Personality - Global
+PI_136,Beyonce,Hard,Famous Personality - Global
+PI_137,Mandela,Hard,Famous Personality - Global
+PI_138,Beethoven,Hard,Famous Personality - Global
+PI_139,Jobs,Hard,Famous Personality - Global
+PI_140,Picasso,Hard,Famous Personality - Global
+PI_141,Deepika Padukone,Easy,Famous Personality - Indian
+PI_142,Dhoni,Easy,Famous Personality - Indian
+PI_143,Lata Mangeshkar,Medium,Famous Personality - Indian
+PI_144,Kamal Haasan,Medium,Famous Personality - Indian
+PI_145,Ambedkar,Medium,Famous Personality - Indian
+PI_146,Rajinikanth,Medium,Famous Personality - Indian
+PI_147,Virat Kohli,Medium,Famous Personality - Indian
+PI_148,Vivekananda,Medium,Famous Personality - Indian
+PI_149,Indira Gandhi,Medium,Famous Personality - Indian
+PI_150,Prabhas,Medium,Famous Personality - Indian
+PI_151,Ratan Tata,Medium,Famous Personality - Indian
+PI_152,Sundar Pichai,Medium,Famous Personality - Indian
+PI_153,Sachin Tendulkar,Medium,Famous Personality - Indian
+PI_154,Tagore,Medium,Famous Personality - Indian
+PI_155,Kalam,Hard,Famous Personality - Indian
+PI_156,Amitabh Bachchan,Hard,Famous Personality - Indian
+PI_157,Nehru,Hard,Famous Personality - Indian
+PI_158,Shahrukh Khan,Hard,Famous Personality - Indian
+PI_159,Modi,Hard,Famous Personality - Indian
+PI_160,A R Rahman,Hard,Famous Personality - Indian
+PI_161,Suit,Easy,Fashion
+PI_162,Jacket,Easy,Fashion
+PI_163,Earrings,Medium,Fashion
+PI_164,Heels,Medium,Fashion
+PI_165,Scarf,Medium,Fashion
+PI_166,Skirt,Medium,Fashion
+PI_167,Tie,Medium,Fashion
+PI_168,Boots,Medium,Fashion
+PI_169,Cap,Medium,Fashion
+PI_170,Blazer,Medium,Fashion
+PI_171,Gloves,Medium,Fashion
+PI_172,Necklace,Medium,Fashion
+PI_173,Dress,Medium,Fashion
+PI_174,Saree,Medium,Fashion
+PI_175,Watch,Hard,Fashion
+PI_176,Blouse,Hard,Fashion
+PI_177,Belt,Hard,Fashion
+PI_178,Hat,Hard,Fashion
+PI_179,Shoes,Hard,Fashion
+PI_180,Jeans,Hard,Fashion
+PI_181,Jurassic Park,Easy,Movie names
+PI_182,Titanic,Easy,Movie names
+PI_183,Matrix,Medium,Movie names
+PI_184,Inception,Medium,Movie names
+PI_185,Star Wars,Medium,Movie names
+PI_186,Frozen,Medium,Movie names
+PI_187,Avengers,Medium,Movie names
+PI_188,ET,Medium,Movie names
+PI_189,Casablanca,Medium,Movie names
+PI_190,Rocky,Medium,Movie names
+PI_191,Gladiator,Medium,Movie names
+PI_192,Interstellar,Medium,Movie names
+PI_193,Harry Potter,Medium,Movie names
+PI_194,Toy Story,Medium,Movie names
+PI_195,Joker,Hard,Movie names
+PI_196,Lion King,Hard,Movie names
+PI_197,Avatar,Hard,Movie names
+PI_198,Psycho,Hard,Movie names
+PI_199,Godfather,Hard,Movie names
+PI_200,Jaws,Hard,Movie names
+PI_201,Notebook,Easy,Back to school
+PI_202,Chalk,Easy,Back to school
+PI_203,Lunchbox,Medium,Back to school
+PI_204,Pencil,Medium,Back to school
+PI_205,Uniform,Medium,Back to school
+PI_206,Bag,Medium,Back to school
+PI_207,Ruler,Medium,Back to school
+PI_208,Desk,Medium,Back to school
+PI_209,Bell,Medium,Back to school
+PI_210,Lab,Medium,Back to school
+PI_211,Playground,Medium,Back to school
+PI_212,Eraser,Medium,Back to school
+PI_213,Exam,Hard,Back to school
+PI_214,Blackboard,Hard,Back to school
+PI_215,Library,Hard,Back to school
+PI_216,Airplane,Easy,Travel/Transport
+PI_217,Metro,Easy,Travel/Transport
+PI_218,Engine,Medium,Travel/Transport
+PI_219,Car,Medium,Travel/Transport
+PI_220,Cruise,Medium,Travel/Transport
+PI_221,Bicycle,Medium,Travel/Transport
+PI_222,Highway,Medium,Travel/Transport
+PI_223,Luggage,Medium,Travel/Transport
+PI_224,Museum,Hard,Travel/Transport
+PI_225,Security,Medium,Travel/Transport
+PI_226,Train,Medium,Travel/Transport
+PI_227,Map,Medium,Travel/Transport
+PI_228,Bus,Medium,Travel/Transport
+PI_229,Compass,Medium,Travel/Transport
+PI_230,Subway,Hard,Travel/Transport
+PI_231,Passport,Hard,Travel/Transport
+PI_232,Petrol,Hard,Travel/Transport
+PI_233,Ticket,Hard,Travel/Transport
+PI_234,Taxi,Hard,Travel/Transport
+PI_235,Suitcase,Hard,Travel/Transport
+PI_236,Lawyer,Easy,Jobs/Occupations
+PI_237,Driver,Easy,Jobs/Occupations
+PI_238,Farmer,Medium,Jobs/Occupations
+PI_239,Scientist,Medium,Jobs/Occupations
+PI_240,Architect,Medium,Jobs/Occupations
+PI_241,Police,Medium,Jobs/Occupations
+PI_242,Doctor,Medium,Jobs/Occupations
+PI_243,Actor,Medium,Jobs/Occupations
+PI_244,Nurse,Medium,Jobs/Occupations
+PI_245,Firefighter,Medium,Jobs/Occupations
+PI_246,Teacher,Medium,Jobs/Occupations
+PI_247,Engineer,Medium,Jobs/Occupations
+PI_248,Pilot,Hard,Jobs/Occupations
+PI_249,Chef,Hard,Jobs/Occupations
+PI_250,Artist,Hard,Jobs/Occupations
+PI_251,Cousin,Easy,Relationships
+PI_252,Uncle,Easy,Relationships
+PI_253,Mother,Medium,Relationships
+PI_254,Sister,Medium,Relationships
+PI_255,Brother,Medium,Relationships
+PI_256,Father,Medium,Relationships
+PI_257,Spouse,Medium,Relationships
+PI_258,Grandfather,Medium,Relationships
+PI_259,Niece,Hard,Relationships
+PI_260,Aunt,Hard,Relationships
+PI_261,Spaceship,Easy,General words
+PI_262,Unicorn,Easy,General words
+PI_263,Candle,Easy,General words
+PI_264,Puzzle,Easy,General words
+PI_265,Tiara,Medium,General words
+PI_266,Garden,Medium,General words
+PI_267,Helmet,Medium,General words
+PI_268,Ladder,Medium,General words
+PI_269,Zombie,Medium,General words
+PI_270,Anchor,Medium,General words
+PI_271,Dragon,Medium,General words
+PI_272,Lantern,Medium,General words
+PI_273,Bubble,Medium,General words
+PI_274,Pet,Medium,General words
+PI_275,Ship,Medium,General words
+PI_276,Island,Medium,General words
+PI_277,Robot,Medium,General words
+PI_278,Toothbrush,Medium,General words
+PI_279,Bridge,Medium,General words
+PI_280,Treasure Chest,Medium,General words
+PI_281,Jupiter,Medium,General words
+PI_282,Crown,Medium,General words
+PI_283,Shutter,Medium,General words
+PI_284,Rocket,Medium,General words
+PI_285,Mirror,Medium,General words
+PI_286,Sword,Medium,General words
+PI_287,Balloon,Medium,General words
+PI_288,Whistle,Medium,General words
+PI_289,Circus,Medium,General words
+PI_290,Book,Medium,General words
+PI_291,Mattress,Hard,General words
+PI_292,Quilt,Hard,General words
+PI_293,Dinosaur,Hard,General words
+PI_294,Castle,Hard,General words
+PI_295,King,Hard,General words
+PI_296,Zipper,Hard,General words
+PI_297,Magnet,Hard,General words
+PI_298,Treasure,Hard,General words
+PI_299,Clock,Hard,General words
+PI_300,Cactus,Hard,General words
