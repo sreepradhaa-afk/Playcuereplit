@@ -30,6 +30,7 @@ export default function Pictionary() {
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<PictionaryDifficulty | "All">("All");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [wordCount, setWordCount] = useState<number>(10);
   const [filteredWords, setFilteredWords] = useState<PictionaryWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -57,10 +58,6 @@ export default function Pictionary() {
       const response = await apiRequest("POST", "/api/pictionary/words/filter", params);
       return await response.json() as PictionaryWord[];
     },
-    onSuccess: (data) => {
-      const shuffled = [...data].sort(() => Math.random() - 0.5);
-      setFilteredWords(shuffled);
-    },
   });
 
   useEffect(() => {
@@ -69,11 +66,18 @@ export default function Pictionary() {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && isTimerRunning) {
       setIsTimerRunning(false);
+      toast({
+        title: "Time's Up!",
+        description: `You scored ${score} points`,
+      });
+      setTimeout(() => {
+        handleEndGame();
+      }, 2000);
     }
     return () => clearInterval(interval);
-  }, [isTimerRunning, timeLeft]);
+  }, [isTimerRunning, timeLeft, score]);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -113,6 +117,11 @@ export default function Pictionary() {
       return;
     }
 
+    // Shuffle and limit to selected word count
+    const shuffled = [...result].sort(() => Math.random() - 0.5);
+    const limitedWords = shuffled.slice(0, wordCount);
+    setFilteredWords(limitedWords);
+
     setGameState("playing");
     setCurrentWordIndex(0);
     setScore(0);
@@ -134,13 +143,13 @@ export default function Pictionary() {
   const advanceToNextWord = (finalScore: number) => {
     if (currentWordIndex < filteredWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
-      setTimeLeft(60);
+      // Don't reset timer - it runs continuously
     } else {
       // Last word completed - end game
       setIsTimerRunning(false);
       toast({
         title: "Game Complete!",
-        description: `Final score: ${finalScore} points`,
+        description: `You scored ${finalScore} points`,
       });
       setTimeout(() => {
         handleEndGame();
@@ -188,7 +197,7 @@ export default function Pictionary() {
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">1.</span>
-                  <span>Choose difficulty level and categories you want to play with</span>
+                  <span>Choose difficulty level, categories, and number of words</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">2.</span>
@@ -196,15 +205,15 @@ export default function Pictionary() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">3.</span>
-                  <span>The drawer sees the word and has 60 seconds to draw it</span>
+                  <span>You have 1 minute total to complete all words</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">4.</span>
-                  <span>Other players try to guess what's being drawn</span>
+                  <span>The drawer draws while others guess each word</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">5.</span>
-                  <span>Click "Next Word" to move to the next word</span>
+                  <span>Click "Got Right" or "Skip" to move to the next word</span>
                 </li>
               </ul>
             </div>
@@ -272,6 +281,23 @@ export default function Pictionary() {
                 <p className="text-xs text-muted-foreground">
                   General words category is always included
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold" htmlFor="word-count-select">
+                  Number of Words
+                </label>
+                <Select value={wordCount.toString()} onValueChange={(value) => setWordCount(parseInt(value))}>
+                  <SelectTrigger id="word-count-select" data-testid="select-word-count">
+                    <SelectValue placeholder="Select number of words" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 words</SelectItem>
+                    <SelectItem value="10">10 words</SelectItem>
+                    <SelectItem value="15">15 words</SelectItem>
+                    <SelectItem value="20">20 words</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

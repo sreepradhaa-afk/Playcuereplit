@@ -30,7 +30,7 @@ export default function Charades() {
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<CharadesDifficulty | "All">("All");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [wordCount, setWordCount] = useState<number>(20);
+  const [wordCount, setWordCount] = useState<number>(10);
   const [filteredWords, setFilteredWords] = useState<CharadesWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -66,7 +66,7 @@ export default function Charades() {
       setIsTimerRunning(false);
       toast({
         title: "Time's Up!",
-        description: `Final score: ${score} points`,
+        description: `You scored ${score} points`,
       });
       setTimeout(() => {
         handleEndGame();
@@ -142,13 +142,13 @@ export default function Charades() {
   const advanceToNextWord = (finalScore: number) => {
     if (currentWordIndex < filteredWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
-      setTimeLeft(60);
+      // Don't reset timer - it runs continuously
     } else {
       // Last word completed - end game
       setIsTimerRunning(false);
       toast({
         title: "Game Complete!",
-        description: `Final score: ${finalScore} points`,
+        description: `You scored ${finalScore} points`,
       });
       setTimeout(() => {
         handleEndGame();
@@ -196,7 +196,7 @@ export default function Charades() {
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">1.</span>
-                  <span>Choose difficulty level and categories you want to play with</span>
+                  <span>Choose difficulty level, categories, and number of words</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">2.</span>
@@ -204,15 +204,15 @@ export default function Charades() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">3.</span>
-                  <span>The actor sees the word/phrase and has 60 seconds to act it out without speaking</span>
+                  <span>You have 1 minute total to complete all words</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">4.</span>
-                  <span>Other players try to guess what's being acted out</span>
+                  <span>The actor acts out words while others guess</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary font-semibold">5.</span>
-                  <span>Click "Got Right" if guessed correctly or "Skip" to move on</span>
+                  <span>Click "Got Right" or "Skip" to move to the next word</span>
                 </li>
               </ul>
             </div>
@@ -288,11 +288,10 @@ export default function Charades() {
                     <SelectValue placeholder="Select number of words" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="5">5 words</SelectItem>
                     <SelectItem value="10">10 words</SelectItem>
+                    <SelectItem value="15">15 words</SelectItem>
                     <SelectItem value="20">20 words</SelectItem>
-                    <SelectItem value="30">30 words</SelectItem>
-                    <SelectItem value="40">40 words</SelectItem>
-                    <SelectItem value="50">50 words</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
