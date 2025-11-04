@@ -51,3 +51,21 @@ export const pictionaryWordSchema = z.object({
 });
 
 export type PictionaryWordSelect = PictionaryWord;
+
+export type CharadesDifficulty = "Easy" | "Medium" | "Hard";
+
+export interface CharadesWord {
+  id: string;
+  cueWords: string;
+  difficulty: CharadesDifficulty;
+  category: string;
+}
+
+export const charadesWordSchema = z.object({
+  id: z.string(),
+  cueWords: z.string(),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]),
+  category: z.string(),
+});
+
+export type CharadesWordSelect = CharadesWord;

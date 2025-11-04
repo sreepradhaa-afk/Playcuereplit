@@ -26,6 +26,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(words);
   });
 
+  // Charades endpoints
+  app.get("/api/charades/words", async (_req, res) => {
+    const words = await storage.getCharadesWords();
+    res.json(words);
+  });
+
+  app.get("/api/charades/categories", async (_req, res) => {
+    const categories = await storage.getCharadesCategories();
+    res.json(categories);
+  });
+
+  app.post("/api/charades/words/filter", async (req, res) => {
+    const { difficulty, categories } = req.body;
+    const words = await storage.getCharadesWordsByFilter(difficulty, categories);
+    res.json(words);
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
