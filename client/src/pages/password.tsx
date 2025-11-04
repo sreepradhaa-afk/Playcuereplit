@@ -21,10 +21,17 @@ import { Link } from "wouter";
 import type { PasswordWord, PasswordDifficulty } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/use-seo";
 
 type GameState = "setup" | "playing";
 
 export default function Password() {
+  useSEO({
+    title: "Play Password Game Online | Word Clue Party Game - PlayCue",
+    description: "Play the Password game online! Give one-word clues to help your partner guess the secret word. Perfect party game with 15 categories and multiple difficulty levels.",
+    keywords: "password game, word game, clue game, party games, family games, guessing game",
+  });
+
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<PasswordDifficulty | "All">("All");

@@ -22,10 +22,17 @@ import { Link } from "wouter";
 import type { CharadesWord, CharadesDifficulty } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/use-seo";
 
 type GameState = "setup" | "playing";
 
 export default function Charades() {
+  useSEO({
+    title: "Play Charades Online | Act It Out Party Game - PlayCue",
+    description: "Play Charades online with friends and family! Act out words while others guess in this classic party game. Multiple difficulty levels and categories. Start playing now!",
+    keywords: "charades online, acting game, charades app, party games, family games, guessing game",
+  });
+
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<CharadesDifficulty | "All">("All");

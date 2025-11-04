@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Rocket } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { motion } from "framer-motion";
+import { useSEO } from "@/hooks/use-seo";
 
 export default function ComingSoon() {
   const params = useParams();
@@ -12,6 +13,12 @@ export default function ComingSoon() {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+
+  useSEO({
+    title: `${displayName} - Coming Soon | PlayCue Party Games`,
+    description: `${displayName} is coming soon to PlayCue! Stay tuned for this exciting new party game. Meanwhile, play Pictionary, Charades, Password and more games available now.`,
+    keywords: `${displayName.toLowerCase()}, party games, coming soon, playcue games, family games`,
+  });
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

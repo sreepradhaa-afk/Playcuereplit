@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/use-seo";
 import { ArrowLeft, Send, MessageSquare } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -36,6 +37,12 @@ const feedbackSchema = z.object({
 type FeedbackFormData = z.infer<typeof feedbackSchema>;
 
 export default function Feedback() {
+  useSEO({
+    title: "Feedback & Suggestions | PlayCue Party Games",
+    description: "Share your feedback, report bugs, or suggest new games for PlayCue. We'd love to hear from you! Help us make the best party game platform for families and friends.",
+    keywords: "feedback, contact, bug report, feature request, game suggestions, customer support",
+  });
+
   const { toast } = useToast();
   const [isSubmitted, setIsSubmitted] = useState(false);
 

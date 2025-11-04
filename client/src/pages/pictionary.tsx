@@ -22,10 +22,17 @@ import { Link } from "wouter";
 import type { PictionaryWord, PictionaryDifficulty } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/use-seo";
 
 type GameState = "setup" | "playing";
 
 export default function Pictionary() {
+  useSEO({
+    title: "Play Pictionary Online | Draw & Guess Party Game - PlayCue",
+    description: "Play Pictionary online with friends and family! Draw pictures and guess words in this fun party game. Choose difficulty levels, categories, and word counts. No setup required!",
+    keywords: "pictionary online, drawing game, guess the drawing, party games, family games, pictionary app",
+  });
+
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<PictionaryDifficulty | "All">("All");
