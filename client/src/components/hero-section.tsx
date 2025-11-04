@@ -117,10 +117,6 @@ export function HeroSection() {
                 Join to play now
               </Button>
             </motion.div>
-
-            <p className="text-sm text-muted-foreground" data-testid="text-hero-subtext">
-              No setup. Just fun.
-            </p>
           </motion.div>
         </motion.div>
       </div>
