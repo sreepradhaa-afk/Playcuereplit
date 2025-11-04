@@ -16,3 +16,20 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Game types and schemas
+export type GameCategory = "alone" | "offline" | "room";
+
+export interface Game {
+  id: string;
+  name: string;
+  description: string;
+  category: GameCategory;
+  icon: string;
+}
+
+export const gameCategories = {
+  alone: "Play Alone",
+  offline: "Play Together (Offline)",
+  room: "Play Together (Join Room)",
+} as const;
