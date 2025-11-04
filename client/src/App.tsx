@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import Pictionary from "@/pages/pictionary";
+import Charades from "@/pages/charades";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -12,6 +13,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/game/pictionary" component={Pictionary} />
+      <Route path="/game/charades" component={Charades} />
       <Route component={NotFound} />
     </Switch>
   );
