@@ -47,7 +47,6 @@ export function HeroSection() {
           />
         </div>
       </div>
-
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
@@ -86,9 +85,7 @@ export function HeroSection() {
             <p 
               className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto"
               data-testid="text-hero-tagline"
-            >
-              Fun prompts and games for families and friends. No boards, cards, or setup required.
-            </p>
+            >No boards, no cards, no downloads, no setup. Just pure joy with screen-assisted party games for the whole gang - friends or family!</p>
           </div>
 
           {/* 3D Animated CTA Button */}
@@ -129,7 +126,6 @@ export function HeroSection() {
           </motion.div>
         </motion.div>
       </div>
-
       {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
