@@ -43,7 +43,7 @@ export function GameGrid({ selectedCategory }: GameGridProps) {
               delay: index * 0.05,
             }}
           >
-            <GameCard game={game} />
+            <GameCard game={game} index={index} />
           </motion.div>
         ))}
       </AnimatePresence>

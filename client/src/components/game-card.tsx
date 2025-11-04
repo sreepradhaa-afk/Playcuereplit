@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import type { Game } from "@shared/schema";
-import { gameCategories } from "@shared/schema";
 import {
   Link,
   Palette,
@@ -29,58 +27,63 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   users: Users,
 };
 
-export function GameCard({ game }: { game: Game }) {
+interface GameCardProps {
+  game: Game;
+  index: number;
+}
+
+export function GameCard({ game, index }: GameCardProps) {
   const IconComponent = iconMap[game.icon] || Users;
+  const isPurple = index % 2 === 0;
 
   return (
     <motion.div
       whileHover={{ y: -8 }}
       transition={{ duration: 0.2 }}
+      className="h-full"
     >
-      <Card className="h-full cursor-pointer hover-elevate active-elevate-2 overflow-hidden group" data-testid={`card-game-${game.id}`}>
-        <CardHeader className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
+      <Card 
+        className="h-full cursor-pointer hover-elevate active-elevate-2 overflow-hidden p-0 border-0"
+        data-testid={`card-game-${game.id}`}
+      >
+        <div
+          className={`
+            h-full overflow-hidden relative
+            ${isPurple 
+              ? 'bg-gradient-to-br from-primary via-primary to-primary/90' 
+              : 'bg-gradient-to-br from-chart-2 via-chart-2 to-chart-2/90'
+            }
+          `}
+        >
+          {/* Decorative circles in background */}
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-1/4 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-1/4 -translate-x-1/4" />
+          
+          <div className="relative z-10 p-6 md:p-8 space-y-6 h-full flex flex-col">
+            {/* Icon */}
             <div className="flex-shrink-0">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center group-hover:from-primary/30 group-hover:to-chart-2/30 transition-all duration-300">
-                <IconComponent className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/15">
+                <IconComponent className="w-8 h-8 text-white" />
               </div>
             </div>
-            <Badge variant="secondary" className="text-xs">
-              {gameCategories[game.category]}
-            </Badge>
-          </div>
-        </CardHeader>
 
-        <CardContent className="space-y-3">
-          <h3 className="text-xl font-display font-semibold text-foreground" data-testid={`text-game-name-${game.id}`}>
-            {game.name}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-2" data-testid={`text-game-description-${game.id}`}>
-            {game.description}
-          </p>
-
-          <div className="pt-2">
-            <motion.div
-              className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all duration-300"
-              whileHover={{ x: 4 }}
-            >
-              <span>Play now</span>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* Content */}
+            <div className="space-y-3 flex-1">
+              <h3 
+                className="text-xl md:text-2xl font-display font-bold text-white" 
+                data-testid={`text-game-name-${game.id}`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </motion.div>
+                {game.name}
+              </h3>
+              <p 
+                className="text-sm md:text-base text-white/80 line-clamp-2" 
+                data-testid={`text-game-description-${game.id}`}
+              >
+                {game.description}
+              </p>
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     </motion.div>
   );
