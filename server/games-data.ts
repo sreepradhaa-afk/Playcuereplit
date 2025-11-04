@@ -1,7 +1,8 @@
-import type { Game } from "@shared/schema";
+import type { Game, PasswordWord } from "@shared/schema";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 export const gamesData: Game[] = [
-  // Play Alone Games
   {
     id: "wordlink",
     name: "WordLink",
@@ -23,7 +24,6 @@ export const gamesData: Game[] = [
     category: "alone",
     icon: "globe",
   },
-  // Play Offline Games
   {
     id: "pictionary",
     name: "Pictionary",
@@ -52,7 +52,6 @@ export const gamesData: Game[] = [
     category: "offline",
     icon: "ban",
   },
-  // Join Room Games
   {
     id: "wavelength",
     name: "Wavelength",
@@ -75,3 +74,30 @@ export const gamesData: Game[] = [
     icon: "users",
   },
 ];
+
+function parsePasswordWords(): PasswordWord[] {
+  const csvPath = join(process.cwd(), "attached_assets", "Password_words_1762282369184.csv");
+  const csvContent = readFileSync(csvPath, "utf-8");
+  const lines = csvContent.trim().split("\n");
+  
+  const words: PasswordWord[] = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    const parts = line.split(",");
+    if (parts.length >= 4) {
+      words.push({
+        id: parts[0],
+        cueWord: parts[1],
+        difficulty: parts[2] as "Easy" | "Medium" | "Hard",
+        category: parts[3],
+      });
+    }
+  }
+  
+  return words;
+}
+
+export const passwordWords = parsePasswordWords();

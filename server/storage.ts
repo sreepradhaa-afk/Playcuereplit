@@ -1,7 +1,8 @@
-import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty } from "@shared/schema";
+import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { passwordWords as importedPasswordWords } from "./games-data";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -18,6 +19,10 @@ export interface IStorage {
   getCharadesWords(): Promise<CharadesWord[]>;
   getCharadesWordsByFilter(difficulty?: CharadesDifficulty | "All", categories?: string[]): Promise<CharadesWord[]>;
   getCharadesCategories(): Promise<string[]>;
+  
+  getPasswordWords(): Promise<PasswordWord[]>;
+  getPasswordWordsByFilter(difficulty?: PasswordDifficulty | "All", categories?: string[]): Promise<PasswordWord[]>;
+  getPasswordCategories(): Promise<string[]>;
 }
 
 function parsePictionaryCSV(): PictionaryWord[] {
@@ -68,11 +73,13 @@ export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private pictionaryWords: PictionaryWord[];
   private charadesWords: CharadesWord[];
+  private passwordWords: PasswordWord[];
 
   constructor() {
     this.users = new Map();
     this.pictionaryWords = parsePictionaryCSV();
     this.charadesWords = parseCharadesCSV();
+    this.passwordWords = importedPasswordWords;
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -141,6 +148,32 @@ export class MemStorage implements IStorage {
 
   async getCharadesCategories(): Promise<string[]> {
     const categoriesSet = new Set(this.charadesWords.map((word) => word.category));
+    return Array.from(categoriesSet).sort();
+  }
+
+  async getPasswordWords(): Promise<PasswordWord[]> {
+    return this.passwordWords;
+  }
+
+  async getPasswordWordsByFilter(
+    difficulty?: PasswordDifficulty | "All",
+    categories?: string[]
+  ): Promise<PasswordWord[]> {
+    let filtered = this.passwordWords;
+
+    if (difficulty && difficulty !== "All") {
+      filtered = filtered.filter((word) => word.difficulty === difficulty);
+    }
+
+    if (categories && categories.length > 0) {
+      filtered = filtered.filter((word) => categories.includes(word.category));
+    }
+
+    return filtered;
+  }
+
+  async getPasswordCategories(): Promise<string[]> {
+    const categoriesSet = new Set(this.passwordWords.map((word) => word.category));
     return Array.from(categoriesSet).sort();
   }
 }

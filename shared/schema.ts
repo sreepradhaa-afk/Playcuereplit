@@ -69,3 +69,21 @@ export const charadesWordSchema = z.object({
 });
 
 export type CharadesWordSelect = CharadesWord;
+
+export type PasswordDifficulty = "Easy" | "Medium" | "Hard";
+
+export interface PasswordWord {
+  id: string;
+  cueWord: string;
+  difficulty: PasswordDifficulty;
+  category: string;
+}
+
+export const passwordWordSchema = z.object({
+  id: z.string(),
+  cueWord: z.string(),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]),
+  category: z.string(),
+});
+
+export type PasswordWordSelect = PasswordWord;

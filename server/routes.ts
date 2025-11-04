@@ -43,6 +43,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(words);
   });
 
+  // Password endpoints
+  app.get("/api/password/words", async (_req, res) => {
+    const words = await storage.getPasswordWords();
+    res.json(words);
+  });
+
+  app.get("/api/password/categories", async (_req, res) => {
+    const categories = await storage.getPasswordCategories();
+    res.json(categories);
+  });
+
+  app.post("/api/password/words/filter", async (req, res) => {
+    const { difficulty, categories } = req.body;
+    const words = await storage.getPasswordWordsByFilter(difficulty, categories);
+    res.json(words);
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

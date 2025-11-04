@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import Pictionary from "@/pages/pictionary";
 import Charades from "@/pages/charades";
+import Password from "@/pages/password";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/game/pictionary" component={Pictionary} />
       <Route path="/game/charades" component={Charades} />
+      <Route path="/game/password" component={Password} />
       <Route component={NotFound} />
     </Switch>
   );
