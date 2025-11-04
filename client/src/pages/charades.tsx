@@ -30,6 +30,7 @@ export default function Charades() {
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<CharadesDifficulty | "All">("All");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [wordCount, setWordCount] = useState<number>(20);
   const [filteredWords, setFilteredWords] = useState<CharadesWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -53,10 +54,6 @@ export default function Charades() {
       const response = await apiRequest("POST", "/api/charades/words/filter", params);
       return await response.json() as CharadesWord[];
     },
-    onSuccess: (data) => {
-      const shuffled = [...data].sort(() => Math.random() - 0.5);
-      setFilteredWords(shuffled);
-    },
   });
 
   useEffect(() => {
@@ -65,11 +62,18 @@ export default function Charades() {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && isTimerRunning) {
       setIsTimerRunning(false);
+      toast({
+        title: "Time's Up!",
+        description: `Final score: ${score} points`,
+      });
+      setTimeout(() => {
+        handleEndGame();
+      }, 2000);
     }
     return () => clearInterval(interval);
-  }, [isTimerRunning, timeLeft]);
+  }, [isTimerRunning, timeLeft, score]);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -111,6 +115,11 @@ export default function Charades() {
       });
       return;
     }
+
+    // Shuffle and limit to selected word count
+    const shuffled = [...result].sort(() => Math.random() - 0.5);
+    const limitedWords = shuffled.slice(0, wordCount);
+    setFilteredWords(limitedWords);
 
     setGameState("playing");
     setCurrentWordIndex(0);
@@ -268,6 +277,24 @@ export default function Charades() {
                     </div>
                   </PopoverContent>
                 </Popover>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold" htmlFor="word-count-select">
+                  Number of Words
+                </label>
+                <Select value={wordCount.toString()} onValueChange={(value) => setWordCount(parseInt(value))}>
+                  <SelectTrigger id="word-count-select" data-testid="select-word-count">
+                    <SelectValue placeholder="Select number of words" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 words</SelectItem>
+                    <SelectItem value="20">20 words</SelectItem>
+                    <SelectItem value="30">30 words</SelectItem>
+                    <SelectItem value="40">40 words</SelectItem>
+                    <SelectItem value="50">50 words</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
