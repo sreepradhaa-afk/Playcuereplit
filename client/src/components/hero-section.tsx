@@ -74,11 +74,9 @@ export function HeroSection() {
               className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-bold text-foreground leading-tight"
               data-testid="text-hero-headline"
             >
-              Play anytime,
-              <br />
-              anywhere –{" "}
+              Play together -{" "}
               <span className="bg-gradient-to-r from-primary via-primary to-chart-2 bg-clip-text text-transparent">
-                together
+                Anytime, Anywhere
               </span>
             </h1>
 
