@@ -38,8 +38,11 @@ export function GameCard({ game, index }: GameCardProps) {
   const isPurple = index % 2 === 0;
   
   const getGamePath = () => {
-    if (game.id === "pictionary") return "/game/pictionary";
-    return `/game/${game.id}`;
+    const developedGames = ["pictionary", "charades", "password"];
+    if (developedGames.includes(game.id)) {
+      return `/game/${game.id}`;
+    }
+    return `/game/coming-soon/${game.id}`;
   };
 
   return (
