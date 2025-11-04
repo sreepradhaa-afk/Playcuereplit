@@ -33,3 +33,21 @@ export const gameCategories = {
   offline: "Play Together (Offline)",
   room: "Play Together (Join Room)",
 } as const;
+
+export type PictionaryDifficulty = "Easy" | "Medium" | "Hard";
+
+export interface PictionaryWord {
+  id: string;
+  word: string;
+  difficulty: PictionaryDifficulty;
+  category: string;
+}
+
+export const pictionaryWordSchema = z.object({
+  id: z.string(),
+  word: z.string(),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]),
+  category: z.string(),
+});
+
+export type PictionaryWordSelect = PictionaryWord;

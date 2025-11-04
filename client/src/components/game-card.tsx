@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import type { Game } from "@shared/schema";
+import { Link as WouterLink } from "wouter";
 import {
   Link,
   Palette,
@@ -35,17 +36,23 @@ interface GameCardProps {
 export function GameCard({ game, index }: GameCardProps) {
   const IconComponent = iconMap[game.icon] || Users;
   const isPurple = index % 2 === 0;
+  
+  const getGamePath = () => {
+    if (game.id === "pictionary") return "/game/pictionary";
+    return `/game/${game.id}`;
+  };
 
   return (
-    <motion.div
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.2 }}
-      className="h-full"
-    >
-      <Card 
-        className="h-full cursor-pointer hover-elevate active-elevate-2 overflow-hidden p-0 border-0"
-        data-testid={`card-game-${game.id}`}
+    <WouterLink href={getGamePath()}>
+      <motion.div
+        whileHover={{ y: -8 }}
+        transition={{ duration: 0.2 }}
+        className="h-full"
       >
+        <Card 
+          className="h-full cursor-pointer hover-elevate active-elevate-2 overflow-hidden p-0 border-0"
+          data-testid={`card-game-${game.id}`}
+        >
         <div
           className={`
             h-full overflow-hidden relative
@@ -86,5 +93,6 @@ export function GameCard({ game, index }: GameCardProps) {
         </div>
       </Card>
     </motion.div>
+    </WouterLink>
   );
 }
