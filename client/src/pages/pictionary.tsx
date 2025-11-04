@@ -10,8 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Play, SkipForward, RotateCcw, Timer } from "lucide-react";
+import { ArrowLeft, Play, SkipForward, RotateCcw, Timer, Check, X, ChevronDown, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import type { PictionaryWord, PictionaryDifficulty } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,10 +34,23 @@ export default function Pictionary() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [score, setScore] = useState(0);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   const { data: categories = [] } = useQuery<string[]>({
     queryKey: ["/api/pictionary/categories"],
   });
+
+  // Initialize selected categories with all except "General words"
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategories.length === 0) {
+      const categoriesWithoutGeneral = categories.filter(cat => cat !== "General words");
+      setSelectedCategories(categoriesWithoutGeneral);
+    }
+  }, [categories, selectedCategories.length]);
+
+  // Filter categories for display (exclude "General words")
+  const visibleCategories = categories.filter(cat => cat !== "General words");
 
   const filterWordsMutation = useMutation({
     mutationFn: async (params: { difficulty: PictionaryDifficulty | "All"; categories: string[] }) => {
@@ -74,9 +93,15 @@ export default function Pictionary() {
       return;
     }
 
+    // Always include "General words" in the filter
+    const categoriesToFilter = [...selectedCategories];
+    if (!categoriesToFilter.includes("General words")) {
+      categoriesToFilter.push("General words");
+    }
+
     const result = await filterWordsMutation.mutateAsync({
       difficulty,
-      categories: selectedCategories.length > 0 ? selectedCategories : categories,
+      categories: categoriesToFilter,
     });
 
     if (result.length === 0) {
@@ -90,14 +115,36 @@ export default function Pictionary() {
 
     setGameState("playing");
     setCurrentWordIndex(0);
+    setScore(0);
     setTimeLeft(60);
     setIsTimerRunning(true);
   };
 
-  const handleNextWord = () => {
+  const handleGotRight = () => {
+    const points = currentWord.difficulty === "Easy" ? 5 : currentWord.difficulty === "Medium" ? 10 : 15;
+    const newScore = score + points;
+    setScore(newScore);
+    advanceToNextWord(newScore);
+  };
+
+  const handleSkip = () => {
+    advanceToNextWord(score);
+  };
+
+  const advanceToNextWord = (finalScore: number) => {
     if (currentWordIndex < filteredWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       setTimeLeft(60);
+    } else {
+      // Last word completed - end game
+      setIsTimerRunning(false);
+      toast({
+        title: "Game Complete!",
+        description: `Final score: ${finalScore} points`,
+      });
+      setTimeout(() => {
+        handleEndGame();
+      }, 2000);
     }
   };
 
@@ -105,6 +152,7 @@ export default function Pictionary() {
     setGameState("setup");
     setIsTimerRunning(false);
     setCurrentWordIndex(0);
+    setScore(0);
     setTimeLeft(60);
   };
 
@@ -181,28 +229,48 @@ export default function Pictionary() {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold">
-                  Categories {selectedCategories.length > 0 && `(${selectedCategories.length} selected)`}
+                  Categories ({selectedCategories.length} selected)
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-4 rounded-md border">
-                  {categories.map((category) => (
-                    <div key={category} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`category-${category}`}
-                        checked={selectedCategories.includes(category)}
-                        onCheckedChange={() => handleCategoryToggle(category)}
-                        data-testid={`checkbox-category-${category}`}
-                      />
-                      <label
-                        htmlFor={`category-${category}`}
-                        className="text-sm cursor-pointer"
-                      >
-                        {category}
-                      </label>
+                <Popover open={categoryDropdownOpen} onOpenChange={setCategoryDropdownOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between"
+                      data-testid="button-category-dropdown"
+                    >
+                      <span className="text-sm">
+                        {selectedCategories.length === 0 
+                          ? "Select categories" 
+                          : selectedCategories.length === visibleCategories.length
+                          ? "All categories selected"
+                          : `${selectedCategories.length} selected`}
+                      </span>
+                      <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start">
+                    <div className="max-h-64 overflow-y-auto p-4 space-y-2">
+                      {visibleCategories.map((category) => (
+                        <div key={category} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`category-${category}`}
+                            checked={selectedCategories.includes(category)}
+                            onCheckedChange={() => handleCategoryToggle(category)}
+                            data-testid={`checkbox-category-${category}`}
+                          />
+                          <label
+                            htmlFor={`category-${category}`}
+                            className="text-sm cursor-pointer flex-1"
+                          >
+                            {category}
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </PopoverContent>
+                </Popover>
                 <p className="text-xs text-muted-foreground">
-                  {selectedCategories.length === 0 ? "All categories will be included" : ""}
+                  General words category is always included
                 </p>
               </div>
             </div>
@@ -243,14 +311,22 @@ export default function Pictionary() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-4xl w-full space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Timer className="w-5 h-5" />
-            <span className="text-2xl font-mono font-semibold" data-testid="text-timer">
-              {formatTime(timeLeft)}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Timer className="w-5 h-5" />
+              <span className="text-2xl font-mono font-semibold" data-testid="text-timer">
+                {formatTime(timeLeft)}
+              </span>
+            </div>
+            <div className="text-sm text-muted-foreground" data-testid="text-word-count">
+              Word {currentWordIndex + 1} of {filteredWords.length}
+            </div>
           </div>
-          <div className="text-sm text-muted-foreground" data-testid="text-word-count">
-            Word {currentWordIndex + 1} of {filteredWords.length}
+          <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
+            <Trophy className="w-5 h-5 text-primary" />
+            <span className="text-xl font-semibold text-primary" data-testid="text-score">
+              {score}
+            </span>
           </div>
         </div>
 
@@ -277,26 +353,38 @@ export default function Pictionary() {
           </AnimatePresence>
         </Card>
 
-        <div className="flex gap-4">
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <Button
+              variant="default"
+              size="lg"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleGotRight}
+              data-testid="button-got-right"
+            >
+              <Check className="w-5 h-5 mr-2" />
+              Got Right (+{currentWord.difficulty === "Easy" ? 5 : currentWord.difficulty === "Medium" ? 10 : 15}pts)
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1"
+              onClick={handleSkip}
+              data-testid="button-skip"
+            >
+              <X className="w-5 h-5 mr-2" />
+              Skip
+            </Button>
+          </div>
           <Button
-            variant="outline"
-            size="lg"
-            className="flex-1"
+            variant="ghost"
+            size="sm"
+            className="w-full"
             onClick={handleEndGame}
             data-testid="button-end-game"
           >
-            <RotateCcw className="w-5 h-5 mr-2" />
+            <RotateCcw className="w-4 h-4 mr-2" />
             End Game
-          </Button>
-          <Button
-            size="lg"
-            className="flex-1"
-            onClick={handleNextWord}
-            disabled={currentWordIndex >= filteredWords.length - 1}
-            data-testid="button-next-word"
-          >
-            Next Word
-            <SkipForward className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

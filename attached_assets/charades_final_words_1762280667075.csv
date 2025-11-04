@@ -1,0 +1,201 @@
+id,cue_words,difficulty_lvl,category_name
+CH_001,Interstellar,Easy,Movie Names - Hollywood/ English
+CH_002,Titanic,Easy,Movie Names - Hollywood/ English
+CH_003,Gladiator,Easy,Movie Names - Hollywood/ English
+CH_004,Finding Nemo,Easy,Movie Names - Hollywood/ English
+CH_005,Toy Story,Easy,Movie Names - Hollywood/ English
+CH_006,Avengers,Medium,Movie Names - Hollywood/ English
+CH_007,Jurassic Park,Medium,Movie Names - Hollywood/ English
+CH_008,Avatar,Medium,Movie Names - Hollywood/ English
+CH_009,Star Wars,Medium,Movie Names - Hollywood/ English
+CH_010,Harry Potter,Medium,Movie Names - Hollywood/ English
+CH_011,Inception,Hard,Movie Names - Hollywood/ English
+CH_012,The Godfather,Hard,Movie Names - Hollywood/ English
+CH_013,Frozen,Hard,Movie Names - Hollywood/ English
+CH_014,The Dark Knight,Hard,Movie Names - Hollywood/ English
+CH_015,Black Panther,Hard,Movie Names - Hollywood/ English
+CH_016,The Shawshank Redemption,Hard,Movie Names - Hollywood/ English
+CH_017,The Matrix,Hard,Movie Names - Hollywood/ English
+CH_018,La La Land,Hard,Movie Names - Hollywood/ English
+CH_019,The Lion King,Hard,Movie Names - Hollywood/ English
+CH_020,Pirates of the Caribbean,Hard,Movie Names - Hollywood/ English
+CH_021,Peaky Blinders,Easy,TV Shows - Hollywood/ English/ International
+CH_022,Friends,Easy,TV Shows - Hollywood/ English/ International
+CH_023,Breaking Bad,Easy,TV Shows - Hollywood/ English/ International
+CH_024,Downton Abbey,Easy,TV Shows - Hollywood/ English/ International
+CH_025,House of the Dragon,Easy,TV Shows - Hollywood/ English/ International
+CH_026,Game of Thrones,Medium,TV Shows - Hollywood/ English/ International
+CH_027,The Office,Medium,TV Shows - Hollywood/ English/ International
+CH_028,Sherlock,Medium,TV Shows - Hollywood/ English/ International
+CH_029,How I Met Your Mother,Medium,TV Shows - Hollywood/ English/ International
+CH_030,The Witcher,Medium,TV Shows - Hollywood/ English/ International
+CH_031,Modern Family,Hard,TV Shows - Hollywood/ English/ International
+CH_032,The Crown,Hard,TV Shows - Hollywood/ English/ International
+CH_033,Stranger Things,Hard,TV Shows - Hollywood/ English/ International
+CH_034,The Simpsons,Hard,TV Shows - Hollywood/ English/ International
+CH_035,Brooklyn Nine-Nine,Hard,TV Shows - Hollywood/ English/ International
+CH_036,Money Heist,Hard,TV Shows - Hollywood/ English/ International
+CH_037,Big Bang Theory,Hard,TV Shows - Hollywood/ English/ International
+CH_038,Vikings,Hard,TV Shows - Hollywood/ English/ International
+CH_039,Suits,Hard,TV Shows - Hollywood/ English/ International
+CH_040,Narcos,Hard,TV Shows - Hollywood/ English/ International
+CH_041,Dracula,Easy,Famous Books
+CH_042,Wuthering Heights,Easy,Famous Books
+CH_043,Harry Potter,Easy,Famous Books
+CH_044,Life of Pi,Easy,Famous Books
+CH_045,The Great Gatsby,Easy,Famous Books
+CH_046,To Kill a Mockingbird,Medium,Famous Books
+CH_047,The Catcher in the Rye,Medium,Famous Books
+CH_048,Jane Eyre,Medium,Famous Books
+CH_049,The Hobbit,Medium,Famous Books
+CH_050,The Little Prince,Medium,Famous Books
+CH_051,Crime and Punishment,Hard,Famous Books
+CH_052,War and Peace,Hard,Famous Books
+CH_053,The Da Vinci Code,Hard,Famous Books
+CH_054,Animal Farm,Hard,Famous Books
+CH_055,Pride and Prejudice,Hard,Famous Books
+CH_056,Lord of the Rings,Hard,Famous Books
+CH_057,1984,Hard,Famous Books
+CH_058,The Kite Runner,Hard,Famous Books
+CH_059,Moby Dick,Hard,Famous Books
+CH_060,The Alchemist,Hard,Famous Books
+CH_061,Lionel Messi,Easy,Famous Personalities - Global
+CH_062,Barack Obama,Easy,Famous Personalities - Global
+CH_063,Rihanna,Easy,Famous Personalities - Global
+CH_064,Beyoncé,Easy,Famous Personalities - Global
+CH_065,Tom Cruise,Easy,Famous Personalities - Global
+CH_066,Elon Musk,Medium,Famous Personalities - Global
+CH_067,William Shakespeare,Medium,Famous Personalities - Global
+CH_068,Nelson Mandela,Medium,Famous Personalities - Global
+CH_069,Marie Curie,Medium,Famous Personalities - Global
+CH_070,Jeff Bezos,Medium,Famous Personalities - Global
+CH_071,Taylor Swift,Hard,Famous Personalities - Global
+CH_072,Leonardo da Vinci,Hard,Famous Personalities - Global
+CH_073,Stephen Hawking,Hard,Famous Personalities - Global
+CH_074,Emma Watson,Hard,Famous Personalities - Global
+CH_075,Steve Jobs,Hard,Famous Personalities - Global
+CH_076,Cristiano Ronaldo,Hard,Famous Personalities - Global
+CH_077,Oprah Winfrey,Hard,Famous Personalities - Global
+CH_078,Albert Einstein,Hard,Famous Personalities - Global
+CH_079,Michael Jackson,Hard,Famous Personalities - Global
+CH_080,Serena Williams,Hard,Famous Personalities - Global
+CH_081,Lata Mangeshkar,Easy,Famous Personalities - Indian
+CH_082,Amitabh Bachchan,Easy,Famous Personalities - Indian
+CH_083,A R Rahman,Easy,Famous Personalities - Indian
+CH_084,Amartya Sen,Easy,Famous Personalities - Indian
+CH_085,Mahatma Gandhi,Easy,Famous Personalities - Indian
+CH_086,Ratan Tata,Medium,Famous Personalities - Indian
+CH_087,Narendra Modi,Medium,Famous Personalities - Indian
+CH_088,Rajinikanth,Medium,Famous Personalities - Indian
+CH_089,Neeraj Chopra,Medium,Famous Personalities - Indian
+CH_090,Ravi Shankar,Medium,Famous Personalities - Indian
+CH_091,Priyanka Chopra,Hard,Famous Personalities - Indian
+CH_092,Deepika Padukone,Hard,Famous Personalities - Indian
+CH_093,Saina Nehwal,Hard,Famous Personalities - Indian
+CH_094,Kalpana Chawla,Hard,Famous Personalities - Indian
+CH_095,Kamal Haasan,Hard,Famous Personalities - Indian
+CH_096,Virat Kohli,Hard,Famous Personalities - Indian
+CH_097,Sundar Pichai,Hard,Famous Personalities - Indian
+CH_098,APJ Abdul Kalam,Hard,Famous Personalities - Indian
+CH_099,MS Dhoni,Hard,Famous Personalities - Indian
+CH_100,Sachin Tendulkar,Hard,Famous Personalities - Indian
+CH_101,Uncle,Easy,People - Jobs/ Occupations/ Relationships
+CH_102,Politician,Easy,People - Jobs/ Occupations/ Relationships
+CH_103,Mechanic,Easy,People - Jobs/ Occupations/ Relationships
+CH_104,Actor,Easy,People - Jobs/ Occupations/ Relationships
+CH_105,Parent,Easy,People - Jobs/ Occupations/ Relationships
+CH_106,Pilot,Medium,People - Jobs/ Occupations/ Relationships
+CH_107,Engineer,Medium,People - Jobs/ Occupations/ Relationships
+CH_108,Plumber,Medium,People - Jobs/ Occupations/ Relationships
+CH_109,Scientist,Medium,People - Jobs/ Occupations/ Relationships
+CH_110,Nurse,Medium,People - Jobs/ Occupations/ Relationships
+CH_111,Farmer,Medium,People - Jobs/ Occupations/ Relationships
+CH_112,Photographer,Medium,People - Jobs/ Occupations/ Relationships
+CH_113,Baker,Medium,People - Jobs/ Occupations/ Relationships
+CH_114,Sibling,Medium,People - Jobs/ Occupations/ Relationships
+CH_115,Aunt,Medium,People - Jobs/ Occupations/ Relationships
+CH_116,Writer,Hard,People - Jobs/ Occupations/ Relationships
+CH_117,Musician,Hard,People - Jobs/ Occupations/ Relationships
+CH_118,Friend,Hard,People - Jobs/ Occupations/ Relationships
+CH_119,Carpenter,Hard,People - Jobs/ Occupations/ Relationships
+CH_120,Teacher,Hard,People - Jobs/ Occupations/ Relationships
+CH_121,Artist,Hard,People - Jobs/ Occupations/ Relationships
+CH_122,Police Officer,Hard,People - Jobs/ Occupations/ Relationships
+CH_123,Chef,Hard,People - Jobs/ Occupations/ Relationships
+CH_124,Athlete,Hard,People - Jobs/ Occupations/ Relationships
+CH_125,Doctor,Hard,People - Jobs/ Occupations/ Relationships
+CH_126,Butterfly,Easy,Animals and Nature
+CH_127,Camel,Easy,Animals and Nature
+CH_128,Mosquito,Easy,Animals and Nature
+CH_129,Penguin,Easy,Animals and Nature
+CH_130,Frog,Easy,Animals and Nature
+CH_131,Dog,Medium,Animals and Nature
+CH_132,Elephant,Medium,Animals and Nature
+CH_133,Tiger,Medium,Animals and Nature
+CH_134,Whale,Medium,Animals and Nature
+CH_135,Shark,Medium,Animals and Nature
+CH_136,Eagle,Medium,Animals and Nature
+CH_137,Dolphin,Medium,Animals and Nature
+CH_138,Snake,Medium,Animals and Nature
+CH_139,Giraffe,Medium,Animals and Nature
+CH_140,Monkey,Medium,Animals and Nature
+CH_141,Parrot,Medium,Animals and Nature
+CH_142,Bee,Medium,Animals and Nature
+CH_143,Crocodile,Medium,Animals and Nature
+CH_144,Rabbit,Medium,Animals and Nature
+CH_145,Peacock,Medium,Animals and Nature
+CH_146,Octopus,Medium,Animals and Nature
+CH_147,Panda,Medium,Animals and Nature
+CH_148,Horse,Medium,Animals and Nature
+CH_149,Deer,Medium,Animals and Nature
+CH_150,Owl,Medium,Animals and Nature
+CH_151,Bear,Medium,Animals and Nature
+CH_152,Fox,Medium,Animals and Nature
+CH_153,Wolf,Medium,Animals and Nature
+CH_154,Turtle,Medium,Animals and Nature
+CH_155,Crab,Medium,Animals and Nature
+CH_156,Spider,Medium,Animals and Nature
+CH_157,Starfish,Medium,Animals and Nature
+CH_158,Jellyfish,Medium,Animals and Nature
+CH_159,Sunflower,Medium,Animals and Nature
+CH_160,Rose,Medium,Animals and Nature
+CH_161,Ant,Hard,Animals and Nature
+CH_162,Mountain,Hard,Animals and Nature
+CH_163,Cactus,Hard,Animals and Nature
+CH_164,Cat,Hard,Animals and Nature
+CH_165,Zebra,Hard,Animals and Nature
+CH_166,Rainbow,Hard,Animals and Nature
+CH_167,Rain,Hard,Animals and Nature
+CH_168,Volcano,Hard,Animals and Nature
+CH_169,Lion,Hard,Animals and Nature
+CH_170,Kangaroo,Hard,Animals and Nature
+CH_171,Go the extra mile,Medium,Phrases
+CH_172,Once in a blue moon,Medium,Phrases
+CH_173,Bite the bullet,Medium,Phrases
+CH_174,Spill the beans,Medium,Phrases
+CH_175,Let the cat out of the bag,Medium,Phrases
+CH_176,Break a leg,Medium,Phrases
+CH_177,Piece of cake,Medium,Phrases
+CH_178,Under the weather,Medium,Phrases
+CH_179,Beat around the bush,Medium,Phrases
+CH_180,Hit the sack,Hard,Phrases
+CH_181,Let sleeping dogs lie,Medium,Idioms
+CH_182,Caught red-handed,Medium,Idioms
+CH_183,Cry over spilt milk,Medium,Idioms
+CH_184,Cut corners,Medium,Idioms
+CH_185,Burn the midnight oil,Medium,Idioms
+CH_186,A blessing in disguise,Medium,Idioms
+CH_187,Kill two birds with one stone,Medium,Idioms
+CH_188,Miss the boat,Medium,Idioms
+CH_189,Throw in the towel,Medium,Idioms
+CH_190,The ball is in your court,Hard,Idioms
+CH_191,The early bird catches the worm,Medium,Proverbs
+CH_192,"When in Rome, do as the Romans do",Medium,Proverbs
+CH_193,"Where there's a will, there's a way",Medium,Proverbs
+CH_194,Better late than never,Medium,Proverbs
+CH_195,Practice makes perfect,Medium,Proverbs
+CH_196,Actions speak louder than words,Medium,Proverbs
+CH_197,A picture is worth a thousand words,Medium,Proverbs
+CH_198,Don't judge a book by its cover,Medium,Proverbs
+CH_199,Honesty is the best policy,Medium,Proverbs
+CH_200,Two wrongs don't make a right,Hard,Proverbs
