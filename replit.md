@@ -183,4 +183,10 @@ Both Colordle and Numble implement server-side solution hiding:
   - Tracks words as they are displayed during gameplay
   - Works across all word-based games (Pictionary, Charades, Password, Taboo)
   - Anonymous users see all words without filtering
-- **Database Tables**: users, sessions, user_word_history all operational with PostgreSQL
+- **Database Implementation**: 
+  - All user data and word history persists to PostgreSQL via Drizzle ORM
+  - `upsertUser()` uses ON CONFLICT DO UPDATE for idempotent user creation
+  - `addUserWordHistory()` inserts word views with foreign key constraint to users table
+  - `getUserSeenWordIds()` queries database with WHERE clause filtering by userId and gameType
+  - Tables: users, sessions, user_word_history all operational with proper foreign key relationships
+- **Verified**: End-to-end tests confirm users persist to database, word tracking works correctly, and foreign key constraints are satisfied
