@@ -475,15 +475,17 @@ export default function Colordle() {
                   <p className="text-foreground text-lg mb-4">
                     Nice try! The target color was:
                   </p>
-                  <div className="flex justify-center mb-4">
-                    <div 
-                      className="w-32 h-32 rounded-lg border-4 border-border"
-                      style={{ backgroundColor: rgbToHex(game!.targetRGB.r, game!.targetRGB.g, game!.targetRGB.b) }}
-                      data-testid="revealed-target-color"
-                    />
-                  </div>
+                  {game?.targetRGB && (
+                    <div className="flex justify-center mb-4">
+                      <div 
+                        className="w-32 h-32 rounded-lg border-4 border-border"
+                        style={{ backgroundColor: rgbToHex(game.targetRGB.r, game.targetRGB.g, game.targetRGB.b) }}
+                        data-testid="revealed-target-color"
+                      />
+                    </div>
+                  )}
                   <p className="text-muted-foreground">
-                    Your best accuracy was {Math.max(...game!.guesses.map(g => g.accuracy)).toFixed(1)}%
+                    Your best accuracy was {game && game.guesses.length > 0 ? Math.max(...game.guesses.map(g => g.accuracy)).toFixed(1) : 0}%
                   </p>
                 </div>
               )}

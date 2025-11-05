@@ -79,7 +79,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
-    res.json(game);
+    // Send targetRGB (what they're matching) but only reveal solution colors/percentages when complete
+    if (game.completed) {
+      res.json(game);
+    } else {
+      const { targetColors, ...clientGame } = game;
+      res.json(clientGame);
+    }
   });
 
   app.post("/api/colordle/game/:id/guess", async (req, res) => {
@@ -111,7 +117,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!game) {
       return res.status(404).json({ error: "Game not found" });
     }
-    res.json(game);
+    // Only send targetCode if game is completed
+    if (game.completed) {
+      res.json(game);
+    } else {
+      const { targetCode, ...clientGame } = game;
+      res.json(clientGame);
+    }
   });
 
   app.post("/api/numble/game/:id/guess", async (req, res) => {
