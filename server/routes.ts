@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { gamesData } from "./games-data";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupWebSocket } from "./websocket";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication (required for Replit Auth)
@@ -268,7 +269,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Room management endpoints
+  app.post("/api/rooms/create", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const { gameType } = req.body;
+      
+      // Generate 10-digit alphanumeric code
+      const code = Math.random().toString(36).substring(2, 12).toUpperCase();
+      
+      const room = await storage.createRoom({
+        code,
+        hostId: userId,
+        gameType,
+        status: 'lobby',
+        currentWordIndex: '0',
+        gameState: null,
+      });
+      
+      // Add host as first player
+      await storage.addPlayerToRoom({
+        roomId: room.id,
+        userId,
+        username: user?.firstName || user?.email || 'Player',
+        score: '0',
+        role: null,
+        currentAnswer: null,
+        hasVoted: 'false',
+      });
+      
+      res.json({ room });
+    } catch (error) {
+      console.error("Error creating room:", error);
+      res.status(500).json({ message: "Failed to create room" });
+    }
+  });
+  
+  app.post("/api/rooms/join", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const { code } = req.body;
+      
+      const room = await storage.getRoomByCode(code);
+      if (!room) {
+        return res.status(404).json({ message: "Room not found" });
+      }
+      
+      // Check if user already in room
+      const players = await storage.getRoomPlayers(room.id);
+      const alreadyInRoom = players.some(p => p.userId === userId);
+      
+      if (!alreadyInRoom) {
+        await storage.addPlayerToRoom({
+          roomId: room.id,
+          userId,
+          username: user?.firstName || user?.email || 'Player',
+          score: '0',
+          role: null,
+          currentAnswer: null,
+          hasVoted: 'false',
+        });
+      }
+      
+      const updatedPlayers = await storage.getRoomPlayers(room.id);
+      res.json({ room, players: updatedPlayers });
+    } catch (error) {
+      console.error("Error joining room:", error);
+      res.status(500).json({ message: "Failed to join room" });
+    }
+  });
+  
+  app.get("/api/rooms/:code", async (req, res) => {
+    try {
+      const room = await storage.getRoomByCode(req.params.code);
+      if (!room) {
+        return res.status(404).json({ message: "Room not found" });
+      }
+      
+      const players = await storage.getRoomPlayers(room.id);
+      res.json({ room, players });
+    } catch (error) {
+      console.error("Error fetching room:", error);
+      res.status(500).json({ message: "Failed to fetch room" });
+    }
+  });
+  
+  app.post("/api/rooms/:code/leave", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const room = await storage.getRoomByCode(req.params.code);
+      
+      if (!room) {
+        return res.status(404).json({ message: "Room not found" });
+      }
+      
+      await storage.removePlayerFromRoom(room.id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error leaving room:", error);
+      res.status(500).json({ message: "Failed to leave room" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Setup WebSocket server
+  setupWebSocket(httpServer);
 
   return httpServer;
 }
