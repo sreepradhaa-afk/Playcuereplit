@@ -60,6 +60,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(words);
   });
 
+  // Taboo endpoints
+  app.get("/api/taboo/words", async (_req, res) => {
+    const words = await storage.getTabooWords();
+    res.json(words);
+  });
+
+  // Colordle endpoints
+  app.post("/api/colordle/game", async (_req, res) => {
+    const game = await storage.createColordleGame();
+    res.json(game);
+  });
+
+  app.get("/api/colordle/game/:id", async (req, res) => {
+    const game = await storage.getColordleGame(req.params.id);
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" });
+    }
+    res.json(game);
+  });
+
+  app.post("/api/colordle/game/:id/guess", async (req, res) => {
+    const { color1, color2, color3 } = req.body;
+    const game = await storage.submitColordleGuess(req.params.id, { color1, color2, color3 });
+    if (!game) {
+      return res.status(404).json({ error: "Game not found or already completed" });
+    }
+    res.json(game);
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

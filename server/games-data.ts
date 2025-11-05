@@ -1,4 +1,4 @@
-import type { Game, PasswordWord } from "@shared/schema";
+import type { Game, PasswordWord, TabooWord } from "@shared/schema";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -101,3 +101,30 @@ function parsePasswordWords(): PasswordWord[] {
 }
 
 export const passwordWords = parsePasswordWords();
+
+function parseTabooWords(): TabooWord[] {
+  const csvPath = join(process.cwd(), "server", "data", "taboo_words.csv");
+  const csvContent = readFileSync(csvPath, "utf-8");
+  const lines = csvContent.trim().split("\n");
+  
+  const words: TabooWord[] = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    const parts = line.split(",");
+    if (parts.length >= 7) {
+      const tabooWords = [parts[2], parts[3], parts[4], parts[5], parts[6]].filter(w => w);
+      words.push({
+        id: parts[0],
+        cueWord: parts[1],
+        tabooWords,
+      });
+    }
+  }
+  
+  return words;
+}
+
+export const tabooWords = parseTabooWords();

@@ -1,8 +1,9 @@
-import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty } from "@shared/schema";
+import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { passwordWords as importedPasswordWords } from "./games-data";
+import { passwordWords as importedPasswordWords, tabooWords as importedTabooWords } from "./games-data";
+import { generateColordleGame, calculateGuessAccuracy, checkWin } from "./colordle-utils";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -23,6 +24,12 @@ export interface IStorage {
   getPasswordWords(): Promise<PasswordWord[]>;
   getPasswordWordsByFilter(difficulty?: PasswordDifficulty | "All", categories?: string[]): Promise<PasswordWord[]>;
   getPasswordCategories(): Promise<string[]>;
+  
+  getTabooWords(): Promise<TabooWord[]>;
+  
+  createColordleGame(): Promise<ColordleGame>;
+  getColordleGame(id: string): Promise<ColordleGame | undefined>;
+  submitColordleGuess(gameId: string, guess: { color1: string; color2: string; color3: string }): Promise<ColordleGame | undefined>;
 }
 
 function parsePictionaryCSV(): PictionaryWord[] {
@@ -74,12 +81,16 @@ export class MemStorage implements IStorage {
   private pictionaryWords: PictionaryWord[];
   private charadesWords: CharadesWord[];
   private passwordWords: PasswordWord[];
+  private tabooWords: TabooWord[];
+  private colordleGames: Map<string, ColordleGame>;
 
   constructor() {
     this.users = new Map();
     this.pictionaryWords = parsePictionaryCSV();
     this.charadesWords = parseCharadesCSV();
     this.passwordWords = importedPasswordWords;
+    this.tabooWords = importedTabooWords;
+    this.colordleGames = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -175,6 +186,43 @@ export class MemStorage implements IStorage {
   async getPasswordCategories(): Promise<string[]> {
     const categoriesSet = new Set(this.passwordWords.map((word) => word.category));
     return Array.from(categoriesSet).sort();
+  }
+
+  async getTabooWords(): Promise<TabooWord[]> {
+    return this.tabooWords;
+  }
+
+  async createColordleGame(): Promise<ColordleGame> {
+    const game = generateColordleGame();
+    this.colordleGames.set(game.id, game);
+    return game;
+  }
+
+  async getColordleGame(id: string): Promise<ColordleGame | undefined> {
+    return this.colordleGames.get(id);
+  }
+
+  async submitColordleGuess(
+    gameId: string,
+    guess: { color1: string; color2: string; color3: string }
+  ): Promise<ColordleGame | undefined> {
+    const game = this.colordleGames.get(gameId);
+    if (!game || game.completed) {
+      return undefined;
+    }
+
+    const guessResult = calculateGuessAccuracy(game.targetColor, guess);
+    game.guesses.push(guessResult);
+
+    // Check if won or if max guesses reached
+    const won = checkWin(guessResult);
+    if (won || game.guesses.length >= 6) {
+      game.completed = true;
+      game.won = won;
+    }
+
+    this.colordleGames.set(gameId, game);
+    return game;
   }
 }
 

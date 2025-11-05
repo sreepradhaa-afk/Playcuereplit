@@ -7,6 +7,8 @@ import Home from "@/pages/home";
 import Pictionary from "@/pages/pictionary";
 import Charades from "@/pages/charades";
 import Password from "@/pages/password";
+import Taboo from "@/pages/taboo";
+import Colordle from "@/pages/colordle";
 import ComingSoon from "@/pages/coming-soon";
 import Feedback from "@/pages/feedback";
 import NotFound from "@/pages/not-found";
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/game/pictionary" component={Pictionary} />
       <Route path="/game/charades" component={Charades} />
       <Route path="/game/password" component={Password} />
+      <Route path="/game/taboo" component={Taboo} />
+      <Route path="/game/colordle" component={Colordle} />
       <Route path="/game/coming-soon/:gameName" component={ComingSoon} />
       <Route path="/feedback" component={Feedback} />
       <Route component={NotFound} />

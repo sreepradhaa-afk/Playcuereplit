@@ -87,3 +87,71 @@ export const passwordWordSchema = z.object({
 });
 
 export type PasswordWordSelect = PasswordWord;
+
+export interface TabooWord {
+  id: string;
+  cueWord: string;
+  tabooWords: string[];
+}
+
+export const tabooWordSchema = z.object({
+  id: z.string(),
+  cueWord: z.string(),
+  tabooWords: z.array(z.string()),
+});
+
+export type TabooWordSelect = TabooWord;
+
+export interface ColordleGame {
+  id: string;
+  targetColor: {
+    color1: string;
+    color2: string;
+    color3: string;
+    percentage1: number;
+    percentage2: number;
+    percentage3: number;
+  };
+  guesses: ColordleGuess[];
+  completed: boolean;
+  won: boolean;
+}
+
+export interface ColordleGuess {
+  color1: string;
+  color2: string;
+  color3: string;
+  accuracy: number;
+  feedback: {
+    color1: 'correct' | 'wrong-position' | 'wrong';
+    color2: 'correct' | 'wrong-position' | 'wrong';
+    color3: 'correct' | 'wrong-position' | 'wrong';
+  };
+}
+
+export const colordleGameSchema = z.object({
+  id: z.string(),
+  targetColor: z.object({
+    color1: z.string(),
+    color2: z.string(),
+    color3: z.string(),
+    percentage1: z.number(),
+    percentage2: z.number(),
+    percentage3: z.number(),
+  }),
+  guesses: z.array(z.object({
+    color1: z.string(),
+    color2: z.string(),
+    color3: z.string(),
+    accuracy: z.number(),
+    feedback: z.object({
+      color1: z.enum(['correct', 'wrong-position', 'wrong']),
+      color2: z.enum(['correct', 'wrong-position', 'wrong']),
+      color3: z.enum(['correct', 'wrong-position', 'wrong']),
+    }),
+  })),
+  completed: z.boolean(),
+  won: z.boolean(),
+});
+
+export type ColordleGameSelect = ColordleGame;
