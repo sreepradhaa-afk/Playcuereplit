@@ -1,4 +1,4 @@
-import { type User, type UpsertUser, type InsertUserWordHistory, type UserWordHistory, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame, userWordHistory as userWordHistoryTable, users as usersTable } from "@shared/schema";
+import { type User, type UpsertUser, type InsertUserWordHistory, type UserWordHistory, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame, type Room, type InsertRoom, type RoomPlayer, type InsertRoomPlayer, type BlankslateWord, type ImposterWord, type WavelengthWord, userWordHistory as userWordHistoryTable, users as usersTable, rooms as roomsTable, roomPlayers as roomPlayersTable, blankslateWords as blankslateWordsTable, imposterWords as imposterWordsTable, wavelengthWords as wavelengthWordsTable } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -46,6 +46,27 @@ export interface IStorage {
   createNumbleGame(codeLength: number): Promise<NumbleGame>;
   getNumbleGame(id: string): Promise<NumbleGame | undefined>;
   submitNumbleGuess(gameId: string, guessCode: string): Promise<NumbleGame | undefined>;
+  
+  // Room operations
+  createRoom(room: InsertRoom): Promise<Room>;
+  getRoomByCode(code: string): Promise<Room | undefined>;
+  getRoomById(id: string): Promise<Room | undefined>;
+  updateRoomStatus(roomId: string, status: string, gameState?: any): Promise<void>;
+  updateRoomWordIndex(roomId: string, index: number): Promise<void>;
+  
+  // Room player operations
+  addPlayerToRoom(player: InsertRoomPlayer): Promise<RoomPlayer>;
+  getRoomPlayers(roomId: string): Promise<RoomPlayer[]>;
+  removePlayerFromRoom(roomId: string, userId: string): Promise<void>;
+  updatePlayerScore(roomId: string, userId: string, score: number): Promise<void>;
+  updatePlayerAnswer(roomId: string, userId: string, answer: string): Promise<void>;
+  updatePlayerVote(roomId: string, userId: string, hasVoted: boolean): Promise<void>;
+  clearPlayerAnswers(roomId: string): Promise<void>;
+  
+  // Game word operations
+  getBlankslateWords(): Promise<BlankslateWord[]>;
+  getImposterWords(): Promise<ImposterWord[]>;
+  getWavelengthWords(): Promise<WavelengthWord[]>;
 }
 
 function parsePictionaryCSV(): PictionaryWord[] {
@@ -316,6 +337,124 @@ export class MemStorage implements IStorage {
     
     this.numbleGames.set(gameId, updatedGame);
     return updatedGame;
+  }
+  
+  // Room operations
+  async createRoom(roomData: InsertRoom): Promise<Room> {
+    const id = randomUUID();
+    const room: Room = {
+      id,
+      code: roomData.code,
+      hostId: roomData.hostId,
+      gameType: roomData.gameType,
+      status: roomData.status || 'lobby',
+      currentWordIndex: roomData.currentWordIndex || '0',
+      gameState: roomData.gameState || null,
+      createdAt: new Date(),
+    };
+    
+    await db.insert(roomsTable).values(room);
+    return room;
+  }
+  
+  async getRoomByCode(code: string): Promise<Room | undefined> {
+    const result = await db.select().from(roomsTable).where(eq(roomsTable.code, code));
+    return result[0];
+  }
+  
+  async getRoomById(id: string): Promise<Room | undefined> {
+    const result = await db.select().from(roomsTable).where(eq(roomsTable.id, id));
+    return result[0];
+  }
+  
+  async updateRoomStatus(roomId: string, status: string, gameState?: any): Promise<void> {
+    const updateData: any = { status };
+    if (gameState !== undefined) {
+      updateData.gameState = gameState;
+    }
+    await db.update(roomsTable).set(updateData).where(eq(roomsTable.id, roomId));
+  }
+  
+  async updateRoomWordIndex(roomId: string, index: number): Promise<void> {
+    await db.update(roomsTable).set({ currentWordIndex: index.toString() }).where(eq(roomsTable.id, roomId));
+  }
+  
+  // Room player operations
+  async addPlayerToRoom(playerData: InsertRoomPlayer): Promise<RoomPlayer> {
+    const id = randomUUID();
+    const player: RoomPlayer = {
+      id,
+      roomId: playerData.roomId,
+      userId: playerData.userId,
+      username: playerData.username,
+      score: playerData.score || '0',
+      role: playerData.role || null,
+      currentAnswer: playerData.currentAnswer || null,
+      hasVoted: playerData.hasVoted || 'false',
+      joinedAt: new Date(),
+    };
+    
+    await db.insert(roomPlayersTable).values(player);
+    return player;
+  }
+  
+  async getRoomPlayers(roomId: string): Promise<RoomPlayer[]> {
+    return await db.select().from(roomPlayersTable).where(eq(roomPlayersTable.roomId, roomId));
+  }
+  
+  async removePlayerFromRoom(roomId: string, userId: string): Promise<void> {
+    await db.delete(roomPlayersTable).where(
+      and(
+        eq(roomPlayersTable.roomId, roomId),
+        eq(roomPlayersTable.userId, userId)
+      )
+    );
+  }
+  
+  async updatePlayerScore(roomId: string, userId: string, score: number): Promise<void> {
+    await db.update(roomPlayersTable).set({ score: score.toString() }).where(
+      and(
+        eq(roomPlayersTable.roomId, roomId),
+        eq(roomPlayersTable.userId, userId)
+      )
+    );
+  }
+  
+  async updatePlayerAnswer(roomId: string, userId: string, answer: string): Promise<void> {
+    await db.update(roomPlayersTable).set({ currentAnswer: answer }).where(
+      and(
+        eq(roomPlayersTable.roomId, roomId),
+        eq(roomPlayersTable.userId, userId)
+      )
+    );
+  }
+  
+  async updatePlayerVote(roomId: string, userId: string, hasVoted: boolean): Promise<void> {
+    await db.update(roomPlayersTable).set({ hasVoted: hasVoted.toString() }).where(
+      and(
+        eq(roomPlayersTable.roomId, roomId),
+        eq(roomPlayersTable.userId, userId)
+      )
+    );
+  }
+  
+  async clearPlayerAnswers(roomId: string): Promise<void> {
+    await db.update(roomPlayersTable).set({ currentAnswer: null, hasVoted: 'false' }).where(
+      eq(roomPlayersTable.roomId, roomId)
+    );
+  }
+  
+  // Game word operations
+  async getBlankslateWords(): Promise<BlankslateWord[]> {
+    return await db.select().from(blankslateWordsTable);
+  }
+  
+  async getImposterWords(): Promise<ImposterWord[]> {
+    return await db.select().from(imposterWordsTable);
+  }
+  
+  async getWavelengthWords(): Promise<WavelengthWord[]> {
+    return await db.select().from(wavelengthWordsTable);
   }
 }
 

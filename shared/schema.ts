@@ -229,3 +229,67 @@ export const numbleGameSchema = z.object({
 });
 
 export type NumbleGameSelect = NumbleGame;
+
+// Multiplayer room tables
+export const rooms = pgTable("rooms", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code", { length: 10 }).notNull().unique(),
+  hostId: varchar("host_id").notNull().references(() => users.id),
+  gameType: varchar("game_type").notNull(), // "blankslate", "imposter", "wavelength"
+  status: varchar("status").notNull().default('lobby'), // "lobby", "playing", "finished"
+  currentWordIndex: varchar("current_word_index").default('0'),
+  gameState: jsonb("game_state"), // Stores game-specific state
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertRoomSchema = createInsertSchema(rooms).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertRoom = z.infer<typeof insertRoomSchema>;
+export type Room = typeof rooms.$inferSelect;
+
+export const roomPlayers = pgTable("room_players", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roomId: varchar("room_id").notNull().references(() => rooms.id, { onDelete: 'cascade' }),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  username: varchar("username").notNull(),
+  score: varchar("score").notNull().default('0'),
+  role: varchar("role"), // For games like imposter: "normal" or "imposter"
+  currentAnswer: varchar("current_answer"), // Stores player's current answer
+  hasVoted: varchar("has_voted").default('false'), // For voting games
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+export const insertRoomPlayerSchema = createInsertSchema(roomPlayers).omit({
+  id: true,
+  joinedAt: true,
+});
+
+export type InsertRoomPlayer = z.infer<typeof insertRoomPlayerSchema>;
+export type RoomPlayer = typeof roomPlayers.$inferSelect;
+
+// Game word tables
+export const blankslateWords = pgTable("blankslate_words", {
+  id: varchar("id").primaryKey(),
+  cueWord: varchar("cue_word").notNull(),
+});
+
+export type BlankslateWord = typeof blankslateWords.$inferSelect;
+
+export const imposterWords = pgTable("imposter_words", {
+  id: varchar("id").primaryKey(),
+  cueWord: varchar("cue_word").notNull(),
+  imposterWord: varchar("imposter_word").notNull(),
+});
+
+export type ImposterWord = typeof imposterWords.$inferSelect;
+
+export const wavelengthWords = pgTable("wavelength_words", {
+  id: varchar("id").primaryKey(),
+  leftSpectrum: varchar("left_spectrum").notNull(),
+  rightSpectrum: varchar("right_spectrum").notNull(),
+});
+
+export type WavelengthWord = typeof wavelengthWords.$inferSelect;
