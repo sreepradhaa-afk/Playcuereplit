@@ -1,9 +1,10 @@
-import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame } from "@shared/schema";
+import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { passwordWords as importedPasswordWords, tabooWords as importedTabooWords } from "./games-data";
-import { generateColordleGame, calculateGuessAccuracy, checkWin } from "./colordle-utils";
+import { createColordleGame, processGuess as processColordleGuess, updateGameWithGuess as updateColordleGame } from "./colordle-utils";
+import { createNumbleGame, processGuess as processNumbleGuess, updateGameWithGuess as updateNumbleGame } from "./numble-utils";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -30,6 +31,10 @@ export interface IStorage {
   createColordleGame(): Promise<ColordleGame>;
   getColordleGame(id: string): Promise<ColordleGame | undefined>;
   submitColordleGuess(gameId: string, guess: { color1: string; color2: string; color3: string }): Promise<ColordleGame | undefined>;
+  
+  createNumbleGame(codeLength: number): Promise<NumbleGame>;
+  getNumbleGame(id: string): Promise<NumbleGame | undefined>;
+  submitNumbleGuess(gameId: string, guessCode: string): Promise<NumbleGame | undefined>;
 }
 
 function parsePictionaryCSV(): PictionaryWord[] {
@@ -83,6 +88,7 @@ export class MemStorage implements IStorage {
   private passwordWords: PasswordWord[];
   private tabooWords: TabooWord[];
   private colordleGames: Map<string, ColordleGame>;
+  private numbleGames: Map<string, NumbleGame>;
 
   constructor() {
     this.users = new Map();
@@ -91,6 +97,7 @@ export class MemStorage implements IStorage {
     this.passwordWords = importedPasswordWords;
     this.tabooWords = importedTabooWords;
     this.colordleGames = new Map();
+    this.numbleGames = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -193,7 +200,7 @@ export class MemStorage implements IStorage {
   }
 
   async createColordleGame(): Promise<ColordleGame> {
-    const game = generateColordleGame();
+    const game = createColordleGame();
     this.colordleGames.set(game.id, game);
     return game;
   }
@@ -211,18 +218,37 @@ export class MemStorage implements IStorage {
       return undefined;
     }
 
-    const guessResult = calculateGuessAccuracy(game.targetColor, guess);
-    game.guesses.push(guessResult);
+    const guessResult = processColordleGuess(game, guess);
+    const updatedGame = updateColordleGame(game, guessResult);
+    
+    this.colordleGames.set(gameId, updatedGame);
+    return updatedGame;
+  }
+  
+  async createNumbleGame(codeLength: number): Promise<NumbleGame> {
+    const game = createNumbleGame(codeLength);
+    this.numbleGames.set(game.id, game);
+    return game;
+  }
 
-    // Check if won or if max guesses reached
-    const won = checkWin(guessResult);
-    if (won || game.guesses.length >= 6) {
-      game.completed = true;
-      game.won = won;
+  async getNumbleGame(id: string): Promise<NumbleGame | undefined> {
+    return this.numbleGames.get(id);
+  }
+
+  async submitNumbleGuess(
+    gameId: string,
+    guessCode: string
+  ): Promise<NumbleGame | undefined> {
+    const game = this.numbleGames.get(gameId);
+    if (!game || game.completed) {
+      return undefined;
     }
 
-    this.colordleGames.set(gameId, game);
-    return game;
+    const guessResult = processNumbleGuess(game, guessCode);
+    const updatedGame = updateNumbleGame(game, guessResult);
+    
+    this.numbleGames.set(gameId, updatedGame);
+    return updatedGame;
   }
 }
 

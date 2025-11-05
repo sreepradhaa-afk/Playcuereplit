@@ -69,7 +69,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Colordle endpoints
   app.post("/api/colordle/game", async (_req, res) => {
     const game = await storage.createColordleGame();
-    res.json(game);
+    // Send targetRGB (what players need to match) but hide the solution (colors + percentages)
+    const { targetColors, ...clientGame } = game;
+    res.json(clientGame);
   });
 
   app.get("/api/colordle/game/:id", async (req, res) => {
@@ -86,7 +88,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!game) {
       return res.status(404).json({ error: "Game not found or already completed" });
     }
+    // Send targetRGB (what they're matching) but only reveal solution colors/percentages when complete
+    if (game.completed) {
+      res.json(game);
+    } else {
+      const { targetColors, ...clientGame } = game;
+      res.json(clientGame);
+    }
+  });
+
+  // Numble endpoints
+  app.post("/api/numble/game", async (req, res) => {
+    const { codeLength } = req.body;
+    const game = await storage.createNumbleGame(codeLength || 4);
+    // Don't send the solution to the client until game is complete
+    const { targetCode, ...clientGame } = game;
+    res.json(clientGame);
+  });
+
+  app.get("/api/numble/game/:id", async (req, res) => {
+    const game = await storage.getNumbleGame(req.params.id);
+    if (!game) {
+      return res.status(404).json({ error: "Game not found" });
+    }
     res.json(game);
+  });
+
+  app.post("/api/numble/game/:id/guess", async (req, res) => {
+    const { code } = req.body;
+    const game = await storage.submitNumbleGuess(req.params.id, code);
+    if (!game) {
+      return res.status(404).json({ error: "Game not found or already completed" });
+    }
+    // Only send solution if game is completed
+    if (game.completed) {
+      res.json(game);
+    } else {
+      const { targetCode, ...clientGame } = game;
+      res.json(clientGame);
+    }
   });
 
   const httpServer = createServer(app);

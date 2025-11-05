@@ -1,105 +1,166 @@
-import type { ColordleGame, ColordleGuess } from "@shared/schema";
+import { ColordleGame, ColordleGuess, ColordleColor } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// Available colors for Colordle
-export const AVAILABLE_COLORS = [
-  { name: "Red", hex: "#EF4444" },
-  { name: "Blue", hex: "#3B82F6" },
-  { name: "Yellow", hex: "#EAB308" },
-  { name: "Green", hex: "#22C55E" },
-  { name: "Purple", hex: "#A855F7" },
-  { name: "Orange", hex: "#F97316" },
-  { name: "Pink", hex: "#EC4899" },
-  { name: "Cyan", hex: "#06B6D4" },
-  { name: "Lime", hex: "#84CC16" },
-  { name: "Indigo", hex: "#6366F1" },
-  { name: "Brown", hex: "#92400E" },
-  { name: "Navy", hex: "#1E3A8A" },
+// Available colors with RGB values
+export const COLORDLE_COLORS: ColordleColor[] = [
+  { name: "Red", hex: "#FF0000", r: 255, g: 0, b: 0 },
+  { name: "Blue", hex: "#0000FF", r: 0, g: 0, b: 255 },
+  { name: "Green", hex: "#00FF00", r: 0, g: 255, b: 0 },
+  { name: "Yellow", hex: "#FFFF00", r: 255, g: 255, b: 0 },
+  { name: "Orange", hex: "#FFA500", r: 255, g: 165, b: 0 },
+  { name: "Purple", hex: "#800080", r: 128, g: 0, b: 128 },
+  { name: "Pink", hex: "#FFC0CB", r: 255, g: 192, b: 203 },
+  { name: "Brown", hex: "#A52A2A", r: 165, g: 42, b: 42 },
+  { name: "Black", hex: "#000000", r: 0, g: 0, b: 0 },
+  { name: "White", hex: "#FFFFFF", r: 255, g: 255, b: 255 },
+  { name: "Cyan", hex: "#00FFFF", r: 0, g: 255, b: 255 },
+  { name: "Magenta", hex: "#FF00FF", r: 255, g: 0, b: 255 },
+  { name: "Lime", hex: "#BFFF00", r: 191, g: 255, b: 0 },
+  { name: "Teal", hex: "#008080", r: 0, g: 128, b: 128 },
+  { name: "Navy", hex: "#000080", r: 0, g: 0, b: 128 },
 ];
 
-// Generate a new Colordle game with random color composition
-export function generateColordleGame(): ColordleGame {
-  // Select 3 unique random colors
-  const shuffled = [...AVAILABLE_COLORS].sort(() => Math.random() - 0.5);
-  const selectedColors = shuffled.slice(0, 3);
-
-  // Generate random percentages that sum to 100
-  let percentage1 = Math.floor(Math.random() * 61) + 20; // 20-80%
-  let percentage2 = Math.floor(Math.random() * (81 - percentage1)) + 10; // At least 10%
-  let percentage3 = 100 - percentage1 - percentage2;
-
-  // Ensure all percentages are at least 10%
-  if (percentage3 < 10) {
-    percentage1 -= (10 - percentage3);
-    percentage3 = 10;
+// Generate random percentages that sum to 100
+function generateRandomPercentages(): [number, number, number] {
+  // Generate first percentage (30-60%)
+  const p1 = Math.floor(Math.random() * 31) + 30;
+  
+  // Generate second percentage (20-50% of remaining)
+  const remaining = 100 - p1;
+  const min2 = Math.max(15, Math.floor(remaining * 0.25));
+  const max2 = Math.min(40, Math.floor(remaining * 0.75));
+  const p2 = Math.floor(Math.random() * (max2 - min2 + 1)) + min2;
+  
+  // Third percentage is whatever remains
+  const p3 = 100 - p1 - p2;
+  
+  // Shuffle to randomize order
+  const percentages = [p1, p2, p3];
+  for (let i = percentages.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [percentages[i], percentages[j]] = [percentages[j], percentages[i]];
   }
+  
+  return percentages as [number, number, number];
+}
 
+// Mix RGB colors based on percentages
+export function mixRGBColors(
+  color1: ColordleColor,
+  color2: ColordleColor,
+  color3: ColordleColor,
+  p1: number,
+  p2: number,
+  p3: number
+): { r: number; g: number; b: number } {
+  const r = Math.round((color1.r * p1 + color2.r * p2 + color3.r * p3) / 100);
+  const g = Math.round((color1.g * p1 + color2.g * p2 + color3.g * p3) / 100);
+  const b = Math.round((color1.b * p1 + color2.b * p2 + color3.b * p3) / 100);
+  
+  return { r, g, b };
+}
+
+// Calculate RGB distance (Euclidean distance in RGB space)
+function calculateRGBDistance(
+  rgb1: { r: number; g: number; b: number },
+  rgb2: { r: number; g: number; b: number }
+): number {
+  const rDiff = rgb1.r - rgb2.r;
+  const gDiff = rgb1.g - rgb2.g;
+  const bDiff = rgb1.b - rgb2.b;
+  
+  return Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+}
+
+// Convert RGB distance to accuracy percentage
+// Maximum possible distance in RGB space is sqrt(255^2 + 255^2 + 255^2) ≈ 441.67
+export function calculateAccuracy(
+  targetRGB: { r: number; g: number; b: number },
+  guessRGB: { r: number; g: number; b: number }
+): number {
+  const maxDistance = 441.67; // sqrt(3 * 255^2)
+  const distance = calculateRGBDistance(targetRGB, guessRGB);
+  const accuracy = Math.max(0, 100 - (distance / maxDistance) * 100);
+  
+  return Math.round(accuracy * 10) / 10; // Round to 1 decimal place
+}
+
+// Create a new Colordle game
+export function createColordleGame(): ColordleGame {
+  // Select 3 unique random colors
+  const shuffledColors = [...COLORDLE_COLORS].sort(() => Math.random() - 0.5);
+  const [color1, color2, color3] = shuffledColors.slice(0, 3);
+  
+  // Generate random percentages
+  const [p1, p2, p3] = generateRandomPercentages();
+  
+  // Calculate target RGB
+  const targetRGB = mixRGBColors(color1, color2, color3, p1, p2, p3);
+  
   return {
     id: randomUUID(),
-    targetColor: {
-      color1: selectedColors[0].name,
-      color2: selectedColors[1].name,
-      color3: selectedColors[2].name,
-      percentage1,
-      percentage2,
-      percentage3,
+    targetColors: {
+      color1: color1.name,
+      color2: color2.name,
+      color3: color3.name,
+      percentage1: p1,
+      percentage2: p2,
+      percentage3: p3,
     },
+    targetRGB,
     guesses: [],
     completed: false,
     won: false,
   };
 }
 
-// Calculate accuracy of a guess compared to target
-// This is a simplified version that only checks color matching, not percentages
-// For a full game, you would need to know the guessed percentages too
-export function calculateGuessAccuracy(
-  targetColor: ColordleGame["targetColor"],
+// Process a guess
+export function processGuess(
+  game: ColordleGame,
   guessColors: { color1: string; color2: string; color3: string }
 ): ColordleGuess {
-  // Check if colors are correct and in correct position
-  const color1Correct = guessColors.color1 === targetColor.color1;
-  const color2Correct = guessColors.color2 === targetColor.color2;
-  const color3Correct = guessColors.color3 === targetColor.color3;
-
-  // Check if colors are in the target but wrong position
-  const targetColors = [targetColor.color1, targetColor.color2, targetColor.color3];
-  const color1InTarget = !color1Correct && targetColors.includes(guessColors.color1);
-  const color2InTarget = !color2Correct && targetColors.includes(guessColors.color2);
-  const color3InTarget = !color3Correct && targetColors.includes(guessColors.color3);
-
-  // Calculate overall color accuracy based on correct positions and color matching
-  // This gives a score for how close the guess is to the target
-  let accuracy = 0;
+  // Find color objects
+  const c1 = COLORDLE_COLORS.find(c => c.name === guessColors.color1);
+  const c2 = COLORDLE_COLORS.find(c => c.name === guessColors.color2);
+  const c3 = COLORDLE_COLORS.find(c => c.name === guessColors.color3);
   
-  // Give full points (33.33%) for each color in the correct position
-  if (color1Correct) accuracy += 33.33;
-  if (color2Correct) accuracy += 33.33;
-  if (color3Correct) accuracy += 33.34;
+  if (!c1 || !c2 || !c3) {
+    throw new Error("Invalid color selection");
+  }
   
-  // Give partial points (16.67%) for colors that are in the mix but wrong position
-  if (color1InTarget) accuracy += 16.67;
-  if (color2InTarget) accuracy += 16.67;
-  if (color3InTarget) accuracy += 16.66;
-
+  // Mix guess colors with equal proportions (33.33% each)
+  const resultRGB = mixRGBColors(c1, c2, c3, 33.33, 33.33, 33.34);
+  
+  // Calculate accuracy
+  const accuracy = calculateAccuracy(game.targetRGB, resultRGB);
+  
   return {
     color1: guessColors.color1,
     color2: guessColors.color2,
     color3: guessColors.color3,
-    accuracy: Math.round(accuracy),
-    feedback: {
-      color1: color1Correct ? "correct" : color1InTarget ? "wrong-position" : "wrong",
-      color2: color2Correct ? "correct" : color2InTarget ? "wrong-position" : "wrong",
-      color3: color3Correct ? "correct" : color3InTarget ? "wrong-position" : "wrong",
-    },
+    resultRGB,
+    accuracy,
   };
 }
 
-// Check if game is won (all colors in correct positions)
-export function checkWin(guess: ColordleGuess): boolean {
-  return (
-    guess.feedback.color1 === "correct" &&
-    guess.feedback.color2 === "correct" &&
-    guess.feedback.color3 === "correct"
-  );
+// Check if game is won (accuracy >= 95%)
+export function checkWin(accuracy: number): boolean {
+  return accuracy >= 95.0;
+}
+
+// Update game with new guess
+export function updateGameWithGuess(
+  game: ColordleGame,
+  guess: ColordleGuess
+): ColordleGame {
+  const newGuesses = [...game.guesses, guess];
+  const won = checkWin(guess.accuracy);
+  const completed = won || newGuesses.length >= 6;
+  
+  return {
+    ...game,
+    guesses: newGuesses,
+    completed,
+    won,
+  };
 }

@@ -4,11 +4,11 @@ import { join } from "path";
 
 export const gamesData: Game[] = [
   {
-    id: "wordlink",
-    name: "WordLink",
-    description: "Transform words letter by letter. Fewer moves, bigger scores!",
+    id: "numble",
+    name: "Numble",
+    description: "Crack the code! Guess the secret number sequence in 6 tries.",
     category: "alone",
-    icon: "link",
+    icon: "lock",
   },
   {
     id: "colordle",
@@ -43,7 +43,7 @@ export const gamesData: Game[] = [
     name: "Password",
     description: "Give one-word clues to help your partner guess the secret word.",
     category: "offline",
-    icon: "lock",
+    icon: "filetext",
   },
   {
     id: "taboo",

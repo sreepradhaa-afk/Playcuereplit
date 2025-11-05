@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Play, Send, Info } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Play, Info, Trash2 } from "lucide-react";
 import { Link } from "wouter";
-import type { ColordleGame, ColordleGuess } from "@shared/schema";
+import type { ColordleGame } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/use-seo";
@@ -16,41 +16,36 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-const AVAILABLE_COLORS = [
-  { name: "Red", hex: "#EF4444" },
-  { name: "Blue", hex: "#3B82F6" },
-  { name: "Yellow", hex: "#EAB308" },
-  { name: "Green", hex: "#22C55E" },
-  { name: "Purple", hex: "#A855F7" },
-  { name: "Orange", hex: "#F97316" },
-  { name: "Pink", hex: "#EC4899" },
-  { name: "Cyan", hex: "#06B6D4" },
-  { name: "Lime", hex: "#84CC16" },
-  { name: "Indigo", hex: "#6366F1" },
-  { name: "Brown", hex: "#92400E" },
-  { name: "Navy", hex: "#1E3A8A" },
+// Available colors matching backend COLORDLE_COLORS
+const COLORDLE_COLORS = [
+  { name: "Red", hex: "#FF0000", r: 255, g: 0, b: 0 },
+  { name: "Blue", hex: "#0000FF", r: 0, g: 0, b: 255 },
+  { name: "Green", hex: "#00FF00", r: 0, g: 255, b: 0 },
+  { name: "Yellow", hex: "#FFFF00", r: 255, g: 255, b: 0 },
+  { name: "Orange", hex: "#FFA500", r: 255, g: 165, b: 0 },
+  { name: "Purple", hex: "#800080", r: 128, g: 0, b: 128 },
+  { name: "Pink", hex: "#FFC0CB", r: 255, g: 192, b: 203 },
+  { name: "Brown", hex: "#A52A2A", r: 165, g: 42, b: 42 },
+  { name: "Black", hex: "#000000", r: 0, g: 0, b: 0 },
+  { name: "White", hex: "#FFFFFF", r: 255, g: 255, b: 255 },
+  { name: "Cyan", hex: "#00FFFF", r: 0, g: 255, b: 255 },
+  { name: "Magenta", hex: "#FF00FF", r: 255, g: 0, b: 255 },
+  { name: "Lime", hex: "#BFFF00", r: 191, g: 255, b: 0 },
+  { name: "Teal", hex: "#008080", r: 0, g: 128, b: 128 },
+  { name: "Navy", hex: "#000080", r: 0, g: 0, b: 128 },
 ];
 
 export default function Colordle() {
   useSEO({
-    title: "Play Colordle Online | Color Combination Puzzle Game - PlayCue",
-    description: "Play Colordle - guess the 3-color combination in 6 tries! Identify which colors are in the mix and their correct order. Fun Wordle-style color puzzle game!",
-    keywords: "colordle, color game, puzzle game, color guessing, wordle colors, daily puzzle, guess the color",
+    title: "Play Colordle Online | RGB Color Mixing Puzzle Game - PlayCue",
+    description: "Play Colordle - mix 3 colors to match the target RGB! Guess the right color combination in 6 tries. Fun color mixing puzzle game!",
+    keywords: "colordle, color mixing, RGB game, color puzzle, color guessing, daily puzzle",
   });
 
   const { toast } = useToast();
   const [game, setGame] = useState<ColordleGame | null>(null);
-  const [selectedColor1, setSelectedColor1] = useState<string>("");
-  const [selectedColor2, setSelectedColor2] = useState<string>("");
-  const [selectedColor3, setSelectedColor3] = useState<string>("");
+  const [currentGuess, setCurrentGuess] = useState<string[]>([]);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showResultDialog, setShowResultDialog] = useState(false);
 
@@ -61,9 +56,7 @@ export default function Colordle() {
     },
     onSuccess: (data) => {
       setGame(data);
-      setSelectedColor1("");
-      setSelectedColor2("");
-      setSelectedColor3("");
+      setCurrentGuess([]);
     },
   });
 
@@ -75,9 +68,7 @@ export default function Colordle() {
     },
     onSuccess: (data) => {
       setGame(data);
-      setSelectedColor1("");
-      setSelectedColor2("");
-      setSelectedColor3("");
+      setCurrentGuess([]);
       
       if (data.completed) {
         setShowResultDialog(true);
@@ -89,43 +80,69 @@ export default function Colordle() {
     createGameMutation.mutate();
   };
 
-  const handleSubmitGuess = () => {
-    if (!selectedColor1 || !selectedColor2 || !selectedColor3) {
-      toast({
-        title: "Select all colors",
-        description: "Please select 3 different colors for your guess",
-        variant: "destructive",
-      });
-      return;
+  const handleColorClick = (colorName: string) => {
+    if (!game || game.completed) return;
+    
+    if (currentGuess.length < 3) {
+      setCurrentGuess([...currentGuess, colorName]);
     }
+  };
 
-    // Check for duplicate colors
-    const colors = [selectedColor1, selectedColor2, selectedColor3];
-    const uniqueColors = new Set(colors);
-    if (uniqueColors.size !== 3) {
+  const handleRemoveLastColor = () => {
+    if (currentGuess.length > 0) {
+      setCurrentGuess(currentGuess.slice(0, -1));
+    }
+  };
+
+  const handleSubmitGuess = () => {
+    if (currentGuess.length !== 3) {
       toast({
-        title: "Colors must be unique",
-        description: "Please select 3 different colors",
+        title: "Select 3 colors",
+        description: "Please select exactly 3 colors for your guess",
         variant: "destructive",
       });
       return;
     }
 
     submitGuessMutation.mutate({
-      color1: selectedColor1,
-      color2: selectedColor2,
-      color3: selectedColor3,
+      color1: currentGuess[0],
+      color2: currentGuess[1],
+      color3: currentGuess[2],
     });
   };
 
+  // Handle keyboard events
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!game || game.completed) return;
+      
+      if (e.key === "Enter" && currentGuess.length === 3) {
+        handleSubmitGuess();
+      } else if (e.key === "Backspace" || e.key === "Delete") {
+        handleRemoveLastColor();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [game, currentGuess]);
+
   const getColorHex = (colorName: string) => {
-    return AVAILABLE_COLORS.find(c => c.name === colorName)?.hex || "#000000";
+    return COLORDLE_COLORS.find(c => c.name === colorName)?.hex || "#000000";
   };
 
-  const getFeedbackBorderClass = (feedback: 'correct' | 'wrong-position' | 'wrong') => {
-    if (feedback === 'correct') return 'border-4 border-green-500';
-    if (feedback === 'wrong-position') return 'border-4 border-yellow-500';
-    return 'border-2 border-border';
+  const rgbToHex = (r: number, g: number, b: number) => {
+    return "#" + [r, g, b].map(x => {
+      const hex = x.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }).join("");
+  };
+
+  const getAccuracyColor = (accuracy: number) => {
+    if (accuracy >= 95) return "bg-green-500";
+    if (accuracy >= 70) return "bg-yellow-500";
+    if (accuracy >= 40) return "bg-orange-500";
+    return "bg-red-500";
   };
 
   return (
@@ -158,7 +175,7 @@ export default function Colordle() {
               Colordle
             </h1>
             <p className="text-xl text-muted-foreground" data-testid="text-description">
-              Guess the 3-color combination in the correct order within 6 tries!
+              Mix 3 colors to match the target RGB in 6 tries!
             </p>
           </div>
         </motion.div>
@@ -189,12 +206,30 @@ export default function Colordle() {
           </motion.div>
         ) : (
           <div className="space-y-6">
+            {/* Target Color Display */}
             <Card className="p-6">
-              <div className="text-center mb-4">
-                <div className="text-sm text-muted-foreground mb-2" data-testid="text-attempts">
+              <h3 className="text-xl font-display font-semibold mb-4 text-center" data-testid="text-target-color-title">
+                Target Color
+              </h3>
+              <div className="flex justify-center" data-testid="target-color-chart">
+                <div 
+                  className="w-48 h-48 rounded-full border-4 border-border flex items-center justify-center shadow-lg"
+                  style={{ 
+                    backgroundColor: rgbToHex(game.targetRGB.r, game.targetRGB.g, game.targetRGB.b)
+                  }}
+                >
+                  <div className="text-center">
+                    <div className="text-sm font-medium bg-background/80 px-3 py-1 rounded backdrop-blur-sm">
+                      Match this color!
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center mt-4">
+                <div className="text-sm text-muted-foreground" data-testid="text-attempts">
                   Attempts: {game.guesses.length} / 6
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2 mt-2">
                   <div
                     className="bg-gradient-to-r from-primary via-purple-500 to-orange-500 h-2 rounded-full transition-all"
                     style={{ width: `${(game.guesses.length / 6) * 100}%` }}
@@ -204,175 +239,168 @@ export default function Colordle() {
               </div>
             </Card>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-xl font-display font-semibold" data-testid="text-your-guess-title">
-                  Your Guess
-                </h3>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium mb-2" data-testid="label-color-1">
-                      Color 1
-                    </label>
-                    <Select value={selectedColor1} onValueChange={setSelectedColor1}>
-                      <SelectTrigger className="w-full" data-testid="select-color-1">
-                        <SelectValue placeholder="Select first color" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {AVAILABLE_COLORS.map((color) => (
-                          <SelectItem key={color.name} value={color.name} data-testid={`option-color-1-${color.name.toLowerCase()}`}>
-                            <div className="flex items-center gap-2">
+            {/* Previous Guesses Grid */}
+            <Card className="p-6">
+              <h3 className="text-xl font-display font-semibold mb-4" data-testid="text-previous-guesses-title">
+                Your Guesses
+              </h3>
+              
+              <div className="space-y-3">
+                {Array.from({ length: 6 }).map((_, index) => {
+                  const guess = game.guesses[index];
+                  const isCurrentRow = index === game.guesses.length && !game.completed;
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`flex items-center gap-3 ${isCurrentRow ? 'ring-2 ring-primary rounded-lg p-2' : ''}`}
+                      data-testid={`guess-row-${index}`}
+                    >
+                      <div className="flex-1 flex gap-2">
+                        {guess ? (
+                          <>
+                            <div
+                              className="flex-1 h-16 rounded-md border-2 border-border"
+                              style={{ backgroundColor: getColorHex(guess.color1) }}
+                              data-testid={`guess-${index}-color-1`}
+                            />
+                            <div
+                              className="flex-1 h-16 rounded-md border-2 border-border"
+                              style={{ backgroundColor: getColorHex(guess.color2) }}
+                              data-testid={`guess-${index}-color-2`}
+                            />
+                            <div
+                              className="flex-1 h-16 rounded-md border-2 border-border"
+                              style={{ backgroundColor: getColorHex(guess.color3) }}
+                              data-testid={`guess-${index}-color-3`}
+                            />
+                          </>
+                        ) : isCurrentRow && currentGuess.length > 0 ? (
+                          <>
+                            {Array.from({ length: 3 }).map((_, i) => (
                               <div
-                                className="w-4 h-4 rounded"
-                                style={{ backgroundColor: color.hex }}
+                                key={i}
+                                className={`flex-1 h-16 rounded-md ${
+                                  currentGuess[i] 
+                                    ? 'border-4 border-yellow-500' 
+                                    : 'border-2 border-dashed border-muted-foreground/30 bg-muted'
+                                }`}
+                                style={currentGuess[i] ? { backgroundColor: getColorHex(currentGuess[i]) } : {}}
+                                data-testid={`current-guess-slot-${i}`}
                               />
-                              <span>{color.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                            ))}
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex-1 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 bg-muted" />
+                            <div className="flex-1 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 bg-muted" />
+                            <div className="flex-1 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 bg-muted" />
+                          </>
+                        )}
+                      </div>
+                      
+                      {guess && (
+                        <div 
+                          className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-sm ${getAccuracyColor(guess.accuracy)}`}
+                          data-testid={`guess-${index}-accuracy`}
+                        >
+                          {guess.accuracy.toFixed(1)}%
+                        </div>
+                      )}
+                      
+                      {!guess && !isCurrentRow && (
+                        <div className="w-16 h-16" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2" data-testid="label-color-2">
-                      Color 2
-                    </label>
-                    <Select value={selectedColor2} onValueChange={setSelectedColor2}>
-                      <SelectTrigger className="w-full" data-testid="select-color-2">
-                        <SelectValue placeholder="Select second color" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {AVAILABLE_COLORS.map((color) => (
-                          <SelectItem key={color.name} value={color.name} data-testid={`option-color-2-${color.name.toLowerCase()}`}>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-4 h-4 rounded"
-                                style={{ backgroundColor: color.hex }}
-                              />
-                              <span>{color.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2" data-testid="label-color-3">
-                      Color 3
-                    </label>
-                    <Select value={selectedColor3} onValueChange={setSelectedColor3}>
-                      <SelectTrigger className="w-full" data-testid="select-color-3">
-                        <SelectValue placeholder="Select third color" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {AVAILABLE_COLORS.map((color) => (
-                          <SelectItem key={color.name} value={color.name} data-testid={`option-color-3-${color.name.toLowerCase()}`}>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-4 h-4 rounded"
-                                style={{ backgroundColor: color.hex }}
-                              />
-                              <span>{color.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+            {/* Current Selection and Controls */}
+            {!game.completed && (
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-display font-semibold" data-testid="text-current-selection-title">
+                    Current Selection ({currentGuess.length}/3)
+                  </h3>
+                  {currentGuess.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveLastColor}
+                      data-testid="button-remove-last"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Remove Last
+                    </Button>
+                  )}
                 </div>
 
-                {selectedColor1 && selectedColor2 && selectedColor3 && (
-                  <div className="flex gap-2 p-4 bg-muted rounded-lg" data-testid="preview-selected-colors">
+                <div className="flex gap-2 mb-6">
+                  {Array.from({ length: 3 }).map((_, i) => (
                     <div
-                      className="flex-1 h-16 rounded"
-                      style={{ backgroundColor: getColorHex(selectedColor1) }}
-                      data-testid="preview-color-1"
-                    />
-                    <div
-                      className="flex-1 h-16 rounded"
-                      style={{ backgroundColor: getColorHex(selectedColor2) }}
-                      data-testid="preview-color-2"
-                    />
-                    <div
-                      className="flex-1 h-16 rounded"
-                      style={{ backgroundColor: getColorHex(selectedColor3) }}
-                      data-testid="preview-color-3"
-                    />
-                  </div>
-                )}
+                      key={i}
+                      className={`flex-1 h-20 rounded-lg flex items-center justify-center ${
+                        currentGuess[i] 
+                          ? 'border-4 border-yellow-500' 
+                          : 'border-2 border-dashed border-muted-foreground/30 bg-muted'
+                      }`}
+                      style={currentGuess[i] ? { backgroundColor: getColorHex(currentGuess[i]) } : {}}
+                      data-testid={`selection-slot-${i}`}
+                    >
+                      {!currentGuess[i] && (
+                        <span className="text-muted-foreground font-semibold">{i + 1}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
 
                 <Button
                   onClick={handleSubmitGuess}
                   className="w-full"
                   size="lg"
-                  disabled={submitGuessMutation.isPending || game.completed || !selectedColor1 || !selectedColor2 || !selectedColor3}
+                  disabled={submitGuessMutation.isPending || currentGuess.length !== 3}
                   data-testid="button-submit-guess"
                 >
-                  <Send className="mr-2 h-5 w-5" />
-                  Submit Guess
+                  ENTER
                 </Button>
-              </div>
+              </Card>
+            )}
 
-              <div className="space-y-4">
-                <h3 className="text-xl font-display font-semibold" data-testid="text-previous-guesses-title">
-                  Previous Guesses
+            {/* Color Palette */}
+            {!game.completed && (
+              <Card className="p-6">
+                <h3 className="text-xl font-display font-semibold mb-4" data-testid="text-color-palette-title">
+                  Color Palette
                 </h3>
                 
-                {game.guesses.length === 0 ? (
-                  <Card className="p-6">
-                    <p className="text-center text-muted-foreground" data-testid="text-no-guesses">
-                      No guesses yet. Make your first guess!
-                    </p>
-                  </Card>
-                ) : (
-                  <div className="space-y-3">
-                    {game.guesses.map((guess, index) => (
-                      <Card key={index} className="p-4" data-testid={`guess-${index}`}>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-medium" data-testid={`guess-number-${index}`}>
-                            Guess {index + 1}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">Accuracy:</span>
-                            <div className="px-3 py-1 rounded-full bg-primary/20 text-primary font-bold" data-testid={`guess-accuracy-${index}`}>
-                              {guess.accuracy}%
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <div
-                            className={`flex-1 h-12 rounded ${getFeedbackBorderClass(guess.feedback.color1)}`}
-                            style={{ backgroundColor: getColorHex(guess.color1) }}
-                            title={guess.feedback.color1}
-                            data-testid={`guess-${index}-color-1`}
-                          />
-                          <div
-                            className={`flex-1 h-12 rounded ${getFeedbackBorderClass(guess.feedback.color2)}`}
-                            style={{ backgroundColor: getColorHex(guess.color2) }}
-                            title={guess.feedback.color2}
-                            data-testid={`guess-${index}-color-2`}
-                          />
-                          <div
-                            className={`flex-1 h-12 rounded ${getFeedbackBorderClass(guess.feedback.color3)}`}
-                            style={{ backgroundColor: getColorHex(guess.color3) }}
-                            title={guess.feedback.color3}
-                            data-testid={`guess-${index}-color-3`}
-                          />
-                        </div>
-                        <div className="mt-2 text-xs text-muted-foreground text-center" data-testid={`guess-${index}-feedback-legend`}>
-                          <span className="text-green-500">●</span> Correct position
-                          <span className="mx-2">|</span>
-                          <span className="text-yellow-500">●</span> Wrong position
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                <div className="grid grid-cols-5 gap-3">
+                  {COLORDLE_COLORS.map((color) => {
+                    const isSelected = currentGuess.includes(color.name);
+                    return (
+                      <button
+                        key={color.name}
+                        onClick={() => handleColorClick(color.name)}
+                        className={`aspect-square rounded-lg hover-elevate active-elevate-2 transition-all ${
+                          isSelected ? 'ring-4 ring-yellow-500 ring-offset-2' : 'border-2 border-border'
+                        }`}
+                        style={{ backgroundColor: color.hex }}
+                        title={color.name}
+                        data-testid={`color-${color.name.toLowerCase()}`}
+                        disabled={currentGuess.length >= 3 && !isSelected}
+                      >
+                        <span className="sr-only">{color.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <p className="text-sm text-muted-foreground text-center mt-4">
+                  Click colors to add them to your guess. Press Backspace to remove the last color.
+                </p>
+              </Card>
+            )}
           </div>
         )}
       </div>
@@ -385,31 +413,38 @@ export default function Colordle() {
             </DialogTitle>
             <DialogDescription className="space-y-4">
               <p className="text-foreground">
-                Guess the secret 3-color combination in 6 tries. You need to identify which 3 colors are in the mix AND their correct order (positions 1, 2, and 3).
+                Your goal is to mix 3 colors to match the target RGB color shown at the top. You have 6 attempts to get as close as possible!
               </p>
               <div className="space-y-3">
                 <div>
-                  <h4 className="font-semibold mb-2">Feedback System:</h4>
+                  <h4 className="font-semibold mb-2 text-foreground">How It Works:</h4>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
-                      <div className="w-4 h-4 rounded border-4 border-green-500 mt-1 flex-shrink-0" />
-                      <span><strong>Green border:</strong> Correct color in the correct position</span>
+                      <span className="font-semibold">1.</span>
+                      <span>Click 3 colors from the palette to create your guess</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-4 h-4 rounded border-4 border-yellow-500 mt-1 flex-shrink-0" />
-                      <span><strong>Yellow border:</strong> Correct color but in the wrong position</span>
+                      <span className="font-semibold">2.</span>
+                      <span>The game mixes your 3 colors equally (33.33% each) into a single RGB color</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="w-4 h-4 rounded border-2 border-muted mt-1 flex-shrink-0" />
-                      <span><strong>No highlight:</strong> Color not in the target combination</span>
+                      <span className="font-semibold">3.</span>
+                      <span>You get an accuracy score showing how close your mixed color is to the target</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-semibold">4.</span>
+                      <span>Win by getting 95% accuracy or higher!</span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Accuracy Score:</h4>
-                  <p className="text-sm">
-                    Each guess shows an accuracy percentage based on how many colors you got right and how many are in correct positions. 100% means you won!
-                  </p>
+                  <h4 className="font-semibold mb-2 text-foreground">Tips:</h4>
+                  <ul className="space-y-2 text-sm">
+                    <li>• Look at the target color carefully - is it warm or cool?</li>
+                    <li>• Try different combinations to see how colors mix</li>
+                    <li>• Use your previous guesses to guide your next attempt</li>
+                    <li>• Remember: mixing colors in RGB is different from mixing paint!</li>
+                  </ul>
                 </div>
               </div>
             </DialogDescription>
@@ -428,37 +463,32 @@ export default function Colordle() {
             <DialogDescription className="text-center space-y-4">
               {game?.won ? (
                 <div>
-                  <p className="text-lg mb-4" data-testid="text-won-message">
-                    Congratulations! You found the color combination in {game.guesses.length} {game.guesses.length === 1 ? 'try' : 'tries'}!
+                  <p className="text-foreground text-lg mb-4">
+                    Congratulations! You matched the target color with {game.guesses[game.guesses.length - 1].accuracy.toFixed(1)}% accuracy!
+                  </p>
+                  <p className="text-muted-foreground">
+                    You solved it in {game.guesses.length} {game.guesses.length === 1 ? 'guess' : 'guesses'}!
                   </p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-lg mb-4" data-testid="text-lost-message">
-                    Better luck next time! The target combination was:
+                  <p className="text-foreground text-lg mb-4">
+                    Nice try! The target color was:
                   </p>
-                  {game && (
-                    <div className="flex gap-2 justify-center mb-4" data-testid="revealed-colors">
-                      <div
-                        className="w-16 h-16 rounded border-2 border-border"
-                        style={{ backgroundColor: getColorHex(game.targetColor.color1) }}
-                        title={game.targetColor.color1}
-                      />
-                      <div
-                        className="w-16 h-16 rounded border-2 border-border"
-                        style={{ backgroundColor: getColorHex(game.targetColor.color2) }}
-                        title={game.targetColor.color2}
-                      />
-                      <div
-                        className="w-16 h-16 rounded border-2 border-border"
-                        style={{ backgroundColor: getColorHex(game.targetColor.color3) }}
-                        title={game.targetColor.color3}
-                      />
-                    </div>
-                  )}
+                  <div className="flex justify-center mb-4">
+                    <div 
+                      className="w-32 h-32 rounded-lg border-4 border-border"
+                      style={{ backgroundColor: rgbToHex(game!.targetRGB.r, game!.targetRGB.g, game!.targetRGB.b) }}
+                      data-testid="revealed-target-color"
+                    />
+                  </div>
+                  <p className="text-muted-foreground">
+                    Your best accuracy was {Math.max(...game!.guesses.map(g => g.accuracy)).toFixed(1)}%
+                  </p>
                 </div>
               )}
-              <div className="flex gap-3">
+              
+              <div className="flex gap-3 mt-4">
                 <Button
                   onClick={() => {
                     setShowResultDialog(false);
