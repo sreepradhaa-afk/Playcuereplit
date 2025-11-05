@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 
 type GameState = "setup" | "playing";
+type Difficulty = "easy" | "medium" | "hard";
 
 export default function Taboo() {
   useSEO({
@@ -34,6 +35,7 @@ export default function Taboo() {
 
   const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>("setup");
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [wordCount, setWordCount] = useState<number>(10);
   const [filteredWords, setFilteredWords] = useState<TabooWord[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -93,7 +95,8 @@ export default function Taboo() {
   };
 
   const handleCorrect = () => {
-    setScore(score + 5);
+    const points = difficulty === "easy" ? 5 : difficulty === "medium" ? 10 : 15;
+    setScore(score + points);
     
     if (currentWordIndex + 1 < filteredWords.length) {
       setCurrentWordIndex(currentWordIndex + 1);
@@ -161,11 +164,46 @@ export default function Taboo() {
                       Game Settings
                     </h2>
                     <p className="text-muted-foreground mb-6" data-testid="text-instructions">
-                      Choose how many words you want to play with. You'll have 60 seconds to describe as many as you can!
+                      Choose your difficulty and how many words you want to play with. You'll have 60 seconds to describe as many as you can!
                     </p>
                   </div>
 
                   <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-3" data-testid="label-difficulty">
+                        Difficulty
+                      </label>
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant={difficulty === "easy" ? "default" : "outline"}
+                          onClick={() => setDifficulty("easy")}
+                          className="flex-1"
+                          data-testid="button-difficulty-easy"
+                        >
+                          Easy (5 pts)
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={difficulty === "medium" ? "default" : "outline"}
+                          onClick={() => setDifficulty("medium")}
+                          className="flex-1"
+                          data-testid="button-difficulty-medium"
+                        >
+                          Medium (10 pts)
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={difficulty === "hard" ? "default" : "outline"}
+                          onClick={() => setDifficulty("hard")}
+                          className="flex-1"
+                          data-testid="button-difficulty-hard"
+                        >
+                          Hard (15 pts)
+                        </Button>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium mb-2" data-testid="label-word-count">
                         Number of Words
@@ -317,7 +355,7 @@ export default function Taboo() {
                   {score} points
                 </div>
                 <p className="text-muted-foreground mt-2" data-testid="text-words-completed">
-                  You got {score / 5} words correct!
+                  You got {Math.round(score / (difficulty === "easy" ? 5 : difficulty === "medium" ? 10 : 15))} words correct!
                 </p>
               </div>
               <div className="flex gap-3">
