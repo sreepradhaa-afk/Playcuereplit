@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame } from "@shared/schema";
+import { type User, type UpsertUser, type InsertUserWordHistory, type UserWordHistory, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -10,9 +10,13 @@ import { createNumbleGame, processGuess as processNumbleGuess, updateGameWithGue
 // you might need
 
 export interface IStorage {
+  // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
+  // User word history operations
+  addUserWordHistory(history: InsertUserWordHistory): Promise<UserWordHistory>;
+  getUserSeenWordIds(userId: string, gameType: string): Promise<string[]>;
   
   getPictionaryWords(): Promise<PictionaryWord[]>;
   getPictionaryWordsByFilter(difficulty?: PictionaryDifficulty | "All", categories?: string[]): Promise<PictionaryWord[]>;
@@ -83,6 +87,7 @@ function parseCharadesCSV(): CharadesWord[] {
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
+  private userWordHistory: Map<string, UserWordHistory>;
   private pictionaryWords: PictionaryWord[];
   private charadesWords: CharadesWord[];
   private passwordWords: PasswordWord[];
@@ -92,6 +97,7 @@ export class MemStorage implements IStorage {
 
   constructor() {
     this.users = new Map();
+    this.userWordHistory = new Map();
     this.pictionaryWords = parsePictionaryCSV();
     this.charadesWords = parseCharadesCSV();
     this.passwordWords = importedPasswordWords;
@@ -100,21 +106,42 @@ export class MemStorage implements IStorage {
     this.numbleGames = new Map();
   }
 
+  // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(userData.id!);
+    const user: User = {
+      id: userData.id!,
+      email: userData.email ?? null,
+      firstName: userData.firstName ?? null,
+      lastName: userData.lastName ?? null,
+      profileImageUrl: userData.profileImageUrl ?? null,
+      createdAt: existingUser?.createdAt ?? new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  // User word history operations
+  async addUserWordHistory(history: InsertUserWordHistory): Promise<UserWordHistory> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const record: UserWordHistory = {
+      id,
+      ...history,
+      seenAt: new Date(),
+    };
+    this.userWordHistory.set(id, record);
+    return record;
+  }
+
+  async getUserSeenWordIds(userId: string, gameType: string): Promise<string[]> {
+    return Array.from(this.userWordHistory.values())
+      .filter((record) => record.userId === userId && record.gameType === gameType)
+      .map((record) => record.wordId);
   }
 
   async getPictionaryWords(): Promise<PictionaryWord[]> {
