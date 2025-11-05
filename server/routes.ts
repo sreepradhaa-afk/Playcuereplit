@@ -36,10 +36,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(categories);
   });
 
-  app.post("/api/pictionary/words/filter", async (req, res) => {
+  app.post("/api/pictionary/words/filter", async (req: any, res) => {
     const { difficulty, categories } = req.body;
-    const words = await storage.getPictionaryWordsByFilter(difficulty, categories);
+    let words = await storage.getPictionaryWordsByFilter(difficulty, categories);
+    
+    // Filter out previously shown words for authenticated users
+    if (req.user?.claims?.sub) {
+      const userId = req.user.claims.sub;
+      const seenWordIds = await storage.getUserSeenWordIds(userId, "pictionary");
+      words = words.filter(word => !seenWordIds.includes(word.id));
+    }
+    
     res.json(words);
+  });
+
+  // Track shown words for authenticated users
+  app.post("/api/pictionary/words/mark-shown", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { wordId } = req.body;
+      await storage.addUserWordHistory({
+        userId,
+        gameType: "pictionary",
+        wordId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking word as shown:", error);
+      res.status(500).json({ message: "Failed to mark word as shown" });
+    }
   });
 
   // Charades endpoints
@@ -53,10 +78,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(categories);
   });
 
-  app.post("/api/charades/words/filter", async (req, res) => {
+  app.post("/api/charades/words/filter", async (req: any, res) => {
     const { difficulty, categories } = req.body;
-    const words = await storage.getCharadesWordsByFilter(difficulty, categories);
+    let words = await storage.getCharadesWordsByFilter(difficulty, categories);
+    
+    // Filter out previously shown words for authenticated users
+    if (req.user?.claims?.sub) {
+      const userId = req.user.claims.sub;
+      const seenWordIds = await storage.getUserSeenWordIds(userId, "charades");
+      words = words.filter(word => !seenWordIds.includes(word.id));
+    }
+    
     res.json(words);
+  });
+
+  // Track shown words for authenticated users
+  app.post("/api/charades/words/mark-shown", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { wordId } = req.body;
+      await storage.addUserWordHistory({
+        userId,
+        gameType: "charades",
+        wordId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking word as shown:", error);
+      res.status(500).json({ message: "Failed to mark word as shown" });
+    }
   });
 
   // Password endpoints
@@ -70,16 +120,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(categories);
   });
 
-  app.post("/api/password/words/filter", async (req, res) => {
+  app.post("/api/password/words/filter", async (req: any, res) => {
     const { difficulty, categories } = req.body;
-    const words = await storage.getPasswordWordsByFilter(difficulty, categories);
+    let words = await storage.getPasswordWordsByFilter(difficulty, categories);
+    
+    // Filter out previously shown words for authenticated users
+    if (req.user?.claims?.sub) {
+      const userId = req.user.claims.sub;
+      const seenWordIds = await storage.getUserSeenWordIds(userId, "password");
+      words = words.filter(word => !seenWordIds.includes(word.id));
+    }
+    
     res.json(words);
+  });
+
+  // Track shown words for authenticated users
+  app.post("/api/password/words/mark-shown", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { wordId } = req.body;
+      await storage.addUserWordHistory({
+        userId,
+        gameType: "password",
+        wordId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking word as shown:", error);
+      res.status(500).json({ message: "Failed to mark word as shown" });
+    }
   });
 
   // Taboo endpoints
   app.get("/api/taboo/words", async (_req, res) => {
     const words = await storage.getTabooWords();
     res.json(words);
+  });
+
+  app.get("/api/taboo/categories", async (_req, res) => {
+    const categories = await storage.getTabooCategories();
+    res.json(categories);
+  });
+
+  app.post("/api/taboo/words/filter", async (req: any, res) => {
+    const { difficulty, categories } = req.body;
+    let words = await storage.getTabooWordsByFilter(difficulty, categories);
+    
+    // Filter out previously shown words for authenticated users
+    if (req.user?.claims?.sub) {
+      const userId = req.user.claims.sub;
+      const seenWordIds = await storage.getUserSeenWordIds(userId, "taboo");
+      words = words.filter(word => !seenWordIds.includes(word.id));
+    }
+    
+    res.json(words);
+  });
+
+  // Track shown words for authenticated users
+  app.post("/api/taboo/words/mark-shown", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { wordId } = req.body;
+      await storage.addUserWordHistory({
+        userId,
+        gameType: "taboo",
+        wordId,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking word as shown:", error);
+      res.status(500).json({ message: "Failed to mark word as shown" });
+    }
   });
 
   // Colordle endpoints

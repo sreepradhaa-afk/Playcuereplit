@@ -45,8 +45,9 @@ Preferred communication style: Simple, everyday language.
 
 **Data Storage**
 - In-memory storage using Map data structures (MemStorage class)
-- Prepared for PostgreSQL integration via Drizzle ORM
-- Design rationale: In-memory storage enables rapid development and testing; architecture allows easy transition to persistent database
+- PostgreSQL database connected via Drizzle ORM for persistent data
+- Hybrid approach: Static game data in memory, user data and history in database
+- Design rationale: In-memory storage for game data ensures fast access; PostgreSQL for user data provides persistence and reliability
 
 **API Structure**
 - RESTful endpoints under `/api` prefix
@@ -63,9 +64,20 @@ Preferred communication style: Simple, everyday language.
 ### Database Schema
 
 **User Management**
-- Users table with UUID primary keys, unique usernames, and password fields
+- Users table with UUID primary keys from OIDC provider (sub claim)
+- User fields: email, firstName, lastName, profileImageUrl, timestamps
+- Sessions table for Express session storage with PostgreSQL
+- User word history table for tracking shown words per user per game
 - Drizzle Zod integration for runtime validation
-- Design rationale: UUIDs prevent enumeration attacks; Drizzle provides type-safe schema definitions and migrations
+- Design rationale: OIDC sub as primary key ensures consistency with auth provider; Drizzle provides type-safe schema definitions
+
+**Word Caching System**
+- user_word_history table tracks (userId, gameType, wordId, shownAt)
+- Prevents word repetition for authenticated users across game sessions
+- Filter endpoints automatically exclude previously shown words
+- Mark-shown endpoints track words as they appear during gameplay
+- Works for Pictionary, Charades, Password, and Taboo games
+- Design rationale: Improves user experience by minimizing repetitive content; optional feature that requires authentication
 
 **Game Data Model**
 - Game interface with id, name, description, category (alone/offline/room), and icon fields
@@ -115,11 +127,16 @@ Preferred communication style: Simple, everyday language.
 - Google Fonts: Plus Jakarta Sans and Space Grotesk via CDN
 - Design rationale: CDN delivery provides optimal caching and performance; selected fonts match gaming platform aesthetic
 
+**Authentication & Authorization**
+- Replit Auth integration for user authentication with Google login support
+- OpenID Connect (OIDC) flow for secure authentication
+- Session-based authentication using express-session with PostgreSQL session store
+- Protected API routes using isAuthenticated middleware
+- Design rationale: Replit Auth provides seamless authentication with minimal configuration; server-side sessions offer better security than JWT tokens
+
 **Missing/Planned Integrations**
-- PostgreSQL database (Drizzle configured but not yet connected)
 - WebSocket/real-time capability for "Join Room" game mode
-- Authentication system (schema defined, routes not implemented)
-- Session storage (connect-pg-simple installed but not configured)
+- Additional OAuth providers (GitHub, Apple, Email/Password available through Replit Auth)
 
 ## Recent Changes (November 2025)
 
@@ -148,3 +165,22 @@ Both Colordle and Numble implement server-side solution hiding:
 - **Numble**: Never sends `targetCode` until completion
 - **Frontend Safety**: Components use null checks (`game?.targetRGB`, `game?.targetCode`) to handle missing solution data gracefully
 - **Verified**: End-to-end tests confirm solutions are hidden during gameplay and revealed only in Game Over dialogs
+
+### Mobile Navigation & Responsive Design
+- **Desktop**: Full navigation menu with Games dropdown showing all game categories
+- **Mobile**: Hamburger menu using Shadcn Sheet component for responsive access
+- **Navigation Items**: Games dropdown (categorized by play mode) and Feedback link
+- **User Menu**: Avatar dropdown with user info and logout for authenticated users
+- **Design rationale**: Sheet drawer provides clean mobile UX; consistent experience across devices
+
+### Authentication & Word Caching (November 2025)
+- **Replit Auth Integration**: Google login enabled (Facebook not supported by Replit Auth)
+- **User Flow**: Login button → Replit Auth → Redirect back with session
+- **Logout Flow**: Logout button → Server clears session → Redirect to home
+- **Navigation UI**: Shows login button when not authenticated, user avatar dropdown when authenticated
+- **Word History Tracking**: 
+  - Automatically filters out previously shown words for logged-in users
+  - Tracks words as they are displayed during gameplay
+  - Works across all word-based games (Pictionary, Charades, Password, Taboo)
+  - Anonymous users see all words without filtering
+- **Database Tables**: users, sessions, user_word_history all operational with PostgreSQL

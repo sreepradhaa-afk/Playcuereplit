@@ -15,6 +15,8 @@ import { Link } from "wouter";
 import type { TabooWord } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/use-seo";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +36,7 @@ export default function Taboo() {
   });
 
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   const [gameState, setGameState] = useState<GameState>("setup");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [wordCount, setWordCount] = useState<number>(10);
@@ -43,6 +46,24 @@ export default function Taboo() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [score, setScore] = useState(0);
   const [showScoreDialog, setShowScoreDialog] = useState(false);
+
+  // Track shown words for authenticated users
+  const markWordShownMutation = useMutation({
+    mutationFn: async (wordId: string) => {
+      const response = await apiRequest("POST", "/api/taboo/words/mark-shown", { wordId });
+      return await response.json();
+    },
+  });
+
+  // Track word when shown
+  useEffect(() => {
+    if (gameState === "playing" && filteredWords.length > 0 && isAuthenticated) {
+      const currentWord = filteredWords[currentWordIndex];
+      if (currentWord) {
+        markWordShownMutation.mutate(currentWord.id);
+      }
+    }
+  }, [currentWordIndex, gameState, filteredWords, isAuthenticated]);
 
   const { data: allWords = [] } = useQuery<TabooWord[]>({
     queryKey: ["/api/taboo/words"],
