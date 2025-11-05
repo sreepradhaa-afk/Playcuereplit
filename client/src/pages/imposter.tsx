@@ -57,6 +57,11 @@ export default function Imposter() {
     user?.id || null
   );
 
+  // Derived values
+  const isHost = user?.id === currentRoom?.hostId;
+  const currentPlayer = players.find((p) => p.userId === user?.id);
+  const isImposter = myRole === "imposter";
+
   // Handle WebSocket messages
   useEffect(() => {
     if (!lastMessage) return;
@@ -235,15 +240,31 @@ export default function Imposter() {
               You must be logged in to play Guess the Imposter.
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-4">
+              <Button 
+                size="lg" 
+                onClick={() => window.location.href = '/api/auth/login'}
+                data-testid="button-login"
+              >
+                Log In
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => window.location.href = '/'}
+                data-testid="button-back-home"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </CardContent>
         </Card>
       </div>
     );
   }
 
   const currentWord = words[parseInt(currentRoom?.currentWordIndex || "0")];
-  const isHost = user?.id === currentRoom?.hostId;
-  const currentPlayer = players.find((p) => p.userId === user?.id);
-  const isImposter = myRole === "imposter";
 
   // Start screen
   if (gamePhase === "start") {

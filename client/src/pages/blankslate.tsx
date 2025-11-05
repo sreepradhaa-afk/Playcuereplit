@@ -231,6 +231,25 @@ export default function Blankslate() {
               You must be logged in to play Blankslate.
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-4">
+              <Button 
+                size="lg" 
+                onClick={() => window.location.href = '/api/auth/login'}
+                data-testid="button-login"
+              >
+                Log In
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => window.location.href = '/'}
+                data-testid="button-back-home"
+              >
+                Back to Home
+              </Button>
+            </div>
+          </CardContent>
         </Card>
       </div>
     );
