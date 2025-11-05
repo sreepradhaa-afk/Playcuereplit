@@ -1,8 +1,15 @@
-import { type User, type UpsertUser, type InsertUserWordHistory, type UserWordHistory, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame } from "@shared/schema";
+import { type User, type UpsertUser, type InsertUserWordHistory, type UserWordHistory, type PictionaryWord, type PictionaryDifficulty, type CharadesWord, type CharadesDifficulty, type PasswordWord, type PasswordDifficulty, type TabooWord, type ColordleGame, type NumbleGame, userWordHistory as userWordHistoryTable, users as usersTable } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { passwordWords as importedPasswordWords, tabooWords as importedTabooWords } from "./games-data";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { eq, and } from "drizzle-orm";
+
+// Database client
+const sql = neon(process.env.DATABASE_URL!);
+const db = drizzle(sql);
 import { createColordleGame, processGuess as processColordleGuess, updateGameWithGuess as updateColordleGame } from "./colordle-utils";
 import { createNumbleGame, processGuess as processNumbleGuess, updateGameWithGuess as updateNumbleGame } from "./numble-utils";
 
@@ -108,21 +115,36 @@ export class MemStorage implements IStorage {
 
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    // Query from PostgreSQL database
+    const result = await db.select().from(usersTable).where(eq(usersTable.id, id));
+    return result[0];
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(userData.id!);
+    const now = new Date();
     const user: User = {
       id: userData.id!,
       email: userData.email ?? null,
       firstName: userData.firstName ?? null,
       lastName: userData.lastName ?? null,
       profileImageUrl: userData.profileImageUrl ?? null,
-      createdAt: existingUser?.createdAt ?? new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
-    this.users.set(user.id, user);
+    
+    // Insert or update in PostgreSQL database using ON CONFLICT
+    await db.insert(usersTable).values(user)
+      .onConflictDoUpdate({
+        target: usersTable.id,
+        set: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          updatedAt: now,
+        },
+      });
+    
     return user;
   }
 
@@ -134,14 +156,32 @@ export class MemStorage implements IStorage {
       ...history,
       seenAt: new Date(),
     };
-    this.userWordHistory.set(id, record);
+    
+    // Insert into PostgreSQL database
+    await db.insert(userWordHistoryTable).values({
+      id,
+      userId: history.userId,
+      gameType: history.gameType,
+      wordId: history.wordId,
+      seenAt: new Date(),
+    });
+    
     return record;
   }
 
   async getUserSeenWordIds(userId: string, gameType: string): Promise<string[]> {
-    return Array.from(this.userWordHistory.values())
-      .filter((record) => record.userId === userId && record.gameType === gameType)
-      .map((record) => record.wordId);
+    // Query from PostgreSQL database
+    const records = await db
+      .select({ wordId: userWordHistoryTable.wordId })
+      .from(userWordHistoryTable)
+      .where(
+        and(
+          eq(userWordHistoryTable.userId, userId),
+          eq(userWordHistoryTable.gameType, gameType)
+        )
+      );
+    
+    return records.map((record) => record.wordId);
   }
 
   async getPictionaryWords(): Promise<PictionaryWord[]> {
