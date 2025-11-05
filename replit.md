@@ -2,7 +2,7 @@
 
 ## Overview
 
-PlayCue is a modern web platform for family-friendly party games that can be played alone, offline together, or in online rooms. The application features 10+ games including WordLink, Colordle, Globetrix, Pictionary, Charades, Password, and Taboo. The platform emphasizes a futuristic minimalist design with energetic personality, inspired by modern gaming platforms like Discord and Epic Games Store, while maintaining family-friendly accessibility.
+PlayCue is a modern web platform for family-friendly party games that can be played alone, offline together, or in online rooms. The application features 10+ games including Numble, Colordle, Globetrix, Pictionary, Charades, Password, and Taboo. The platform emphasizes a futuristic minimalist design with energetic personality, inspired by modern gaming platforms like Discord and Epic Games Store, while maintaining family-friendly accessibility.
 
 ## User Preferences
 
@@ -120,3 +120,31 @@ Preferred communication style: Simple, everyday language.
 - WebSocket/real-time capability for "Join Room" game mode
 - Authentication system (schema defined, routes not implemented)
 - Session storage (connect-pg-simple installed but not configured)
+
+## Recent Changes (November 2025)
+
+### Colordle Game Redesign
+- **Target Display**: Players now see the target RGB color as a visual circle they must match
+- **Color Palette**: 15-color palette (Red, Blue, Green, Yellow, Orange, Purple, Pink, Brown, Black, White, Cyan, Magenta, Lime, Teal, Navy)
+- **Gameplay Mechanics**: Players select 3 colors from palette; system calculates RGB mix and accuracy percentage
+- **Win Condition**: ≥95% RGB accuracy match
+- **Security**: Backend sends `targetRGB` (the visual puzzle) but hides `targetColors` (the solution with percentages) until game completion
+
+### Numble Game Implementation
+- **Game Type**: Wordle-style number guessing game that replaced WordLink
+- **Code Length**: Players choose 3-6 digit code length
+- **Gameplay**: 6 attempts to guess secret code using number pad interface
+- **Feedback System**: 
+  - Green: Correct digit in correct position
+  - Yellow: Correct digit in wrong position
+  - Gray: Digit not in code
+- **Win Condition**: Exact match of all digits in correct positions
+- **Security**: Backend hides `targetCode` (solution) until game completion to prevent cheating
+
+### Security Implementation
+Both Colordle and Numble implement server-side solution hiding:
+- **API Endpoints**: All create/fetch/guess endpoints filter sensitive data based on `game.completed` status
+- **Colordle**: Always sends `targetRGB` (required for gameplay), hides `targetColors` until completion
+- **Numble**: Never sends `targetCode` until completion
+- **Frontend Safety**: Components use null checks (`game?.targetRGB`, `game?.targetCode`) to handle missing solution data gracefully
+- **Verified**: End-to-end tests confirm solutions are hidden during gameplay and revealed only in Game Over dialogs
