@@ -67,7 +67,7 @@ export const gamesData: Game[] = [
     icon: "filetext",
   },
   {
-    id: "guess-the-imposter",
+    id: "imposter",
     name: "Guess the Imposter",
     description: "Find who doesn't belong! Deduce the imposter through clever questions.",
     category: "room",

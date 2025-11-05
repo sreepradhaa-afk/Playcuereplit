@@ -55,7 +55,7 @@ const gameCategories = [
     games: [
       { id: "wavelength", name: "Wavelength", icon: Radio },
       { id: "blankslate", name: "Blankslate", icon: FileText },
-      { id: "guess-the-imposter", name: "Guess the Imposter", icon: Users },
+      { id: "imposter", name: "Guess the Imposter", icon: Users },
     ],
   },
 ];
@@ -63,7 +63,7 @@ const gameCategories = [
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth();
-  const developedGames = ["numble", "colordle", "pictionary", "charades", "password", "taboo"];
+  const developedGames = ["numble", "colordle", "pictionary", "charades", "password", "taboo", "blankslate", "imposter"];
   
   const handleLogin = () => {
     window.location.href = "/api/login";

@@ -60,6 +60,7 @@ export interface IStorage {
   removePlayerFromRoom(roomId: string, userId: string): Promise<void>;
   updatePlayerScore(roomId: string, userId: string, score: number): Promise<void>;
   updatePlayerAnswer(roomId: string, userId: string, answer: string): Promise<void>;
+  updatePlayerRole(roomId: string, userId: string, role: string): Promise<void>;
   updatePlayerVote(roomId: string, userId: string, hasVoted: boolean): Promise<void>;
   clearPlayerAnswers(roomId: string): Promise<void>;
   
@@ -422,6 +423,15 @@ export class MemStorage implements IStorage {
   
   async updatePlayerAnswer(roomId: string, userId: string, answer: string): Promise<void> {
     await db.update(roomPlayersTable).set({ currentAnswer: answer }).where(
+      and(
+        eq(roomPlayersTable.roomId, roomId),
+        eq(roomPlayersTable.userId, userId)
+      )
+    );
+  }
+  
+  async updatePlayerRole(roomId: string, userId: string, role: string): Promise<void> {
+    await db.update(roomPlayersTable).set({ role }).where(
       and(
         eq(roomPlayersTable.roomId, roomId),
         eq(roomPlayersTable.userId, userId)

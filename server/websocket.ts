@@ -67,21 +67,40 @@ export function setupWebSocket(server: HttpServer) {
                 words = await storage.getImposterWords();
               }
               
-              // For imposter, assign one random player as imposter
+              // For imposter, assign one random player as imposter (store in role column, not currentAnswer)
               if (room.gameType === "imposter" && players.length > 0) {
                 const imposterIndex = Math.floor(Math.random() * players.length);
-                for (let i = 0; i < players.length; i++) {
-                  const role = i === imposterIndex ? "imposter" : "normal";
-                  await storage.updatePlayerAnswer(room.id, players[i].userId, role);
+                // Clear all player roles first
+                for (const player of players) {
+                  await storage.updatePlayerRole(room.id, player.userId, "normal");
+                }
+                // Assign imposter role to random player
+                await storage.updatePlayerRole(room.id, players[imposterIndex].userId, "imposter");
+                
+                // Send role assignment individually to each player (not broadcast)
+                const updatedPlayers = await storage.getRoomPlayers(room.id);
+                for (const player of updatedPlayers) {
+                  const playerSocket = userSockets.get(player.userId);
+                  if (playerSocket && playerSocket.readyState === WebSocket.OPEN) {
+                    playerSocket.send(JSON.stringify({
+                      type: "role-assigned",
+                      payload: { role: player.role },
+                    }));
+                  }
                 }
               }
               
               const updatedRoom = await storage.getRoomByCode(roomCode);
               const updatedPlayers = await storage.getRoomPlayers(room.id);
               
+              // Send game start without role information (roles sent separately above)
               broadcastToRoom(roomCode, {
                 type: "game-started",
-                payload: { room: updatedRoom, players: updatedPlayers, words },
+                payload: { 
+                  room: updatedRoom, 
+                  players: updatedPlayers.map(p => ({ ...p, role: null })), // Hide roles from broadcast
+                  words 
+                },
               });
             }
             break;
@@ -103,6 +122,16 @@ export function setupWebSocket(server: HttpServer) {
             break;
           }
           
+          case "start-voting": {
+            const { roomCode } = message.payload;
+            
+            broadcastToRoom(roomCode, {
+              type: "voting-started",
+              payload: {},
+            });
+            break;
+          }
+          
           case "vote-imposter": {
             const { roomCode, userId, votedUserId } = message.payload;
             const room = await storage.getRoomByCode(roomCode);
@@ -115,8 +144,40 @@ export function setupWebSocket(server: HttpServer) {
               const players = await storage.getRoomPlayers(room.id);
               
               broadcastToRoom(roomCode, {
-                type: "vote-update",
-                payload: { players },
+                type: "vote-cast",
+                payload: { players: players.map(p => ({ ...p, role: null, currentAnswer: null })) },
+              });
+            }
+            break;
+          }
+          
+          case "calculate-votes": {
+            const { roomCode } = message.payload;
+            const room = await storage.getRoomByCode(roomCode);
+            
+            if (room) {
+              const players = await storage.getRoomPlayers(room.id);
+              
+              // Find who the imposter is
+              const imposter = players.find(p => p.role === "imposter");
+              const imposterUserId = imposter?.userId || null;
+              
+              // Count votes
+              const voteCount: Record<string, number> = {};
+              players.forEach(player => {
+                if (player.currentAnswer && player.currentAnswer.startsWith("vote:")) {
+                  const votedId = player.currentAnswer.substring(5);
+                  voteCount[votedId] = (voteCount[votedId] || 0) + 1;
+                }
+              });
+              
+              // Send voting results with imposter reveal
+              broadcastToRoom(roomCode, {
+                type: "voting-results",
+                payload: { 
+                  voteResults: voteCount,
+                  imposterUserId,
+                },
               });
             }
             break;
@@ -184,7 +245,7 @@ export function setupWebSocket(server: HttpServer) {
       }
     });
 
-    ws.on("close", () => {
+    ws.on("close", async () => {
       // Remove from room connections
       if (currentRoomCode && roomConnections.has(currentRoomCode)) {
         roomConnections.get(currentRoomCode)!.delete(ws);
@@ -196,6 +257,24 @@ export function setupWebSocket(server: HttpServer) {
       // Remove from user sockets
       if (currentUserId) {
         userSockets.delete(currentUserId);
+      }
+      
+      // Optionally remove player from room on disconnect
+      // This ensures disconnected players don't stay in the lobby
+      if (currentRoomCode && currentUserId) {
+        try {
+          const room = await storage.getRoomByCode(currentRoomCode);
+          if (room && room.status === "lobby") {
+            await storage.removePlayerFromRoom(room.id, currentUserId);
+            const updatedPlayers = await storage.getRoomPlayers(room.id);
+            broadcastToRoom(currentRoomCode, {
+              type: "room-update",
+              payload: { room, players: updatedPlayers },
+            });
+          }
+        } catch (error) {
+          console.error("Error handling disconnect:", error);
+        }
       }
     });
   });
