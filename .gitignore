@@ -2,8 +2,5 @@ node_modules
 dist
 .DS_Store
 server/public
-CLERK_SECRET_KEY=sk_test_o0Gna8Fgbiz29gRZqJDXyaFMMGMKkSFjR2ndq48DFi
-CLERK_PUBLISHABLE_KEY=pk_test_Y2FyZWZ1bC1iYXJuYWNsZS0yNS5jbGVyay5hY2NvdW50cy5kZXYk
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_Y2FyZWZ1bC1iYXJuYWNsZS0yNS5jbGVyay5hY2NvdW50cy5kZXYk
 vite.config.ts.*
 *.tar.gz
